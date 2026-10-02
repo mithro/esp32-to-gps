@@ -34,26 +34,15 @@ Pins kept free:
 The UART is always crossed: the ESP32's TX (GPIO4) goes to the receiver's RX
 pad, and the receiver's TX pad goes to the ESP32's RX (GPIO3).
 
-## Pads left disconnected
+## Reading the wire tables
 
-Every pad on a receiver's header is either wired or recorded as left
-disconnected ("NC", not connected). Those pads are crossed out in red on the
-diagrams and listed under each one with the reason.
+Each receiver below has one table listing **every** pad on its header, in
+the order the pads have on the board. A pad is either wired to a SuperMini
+pin or marked **leave disconnected**, with what the pad is and why. Those
+pads are crossed out in red on the diagram.
 
-The u-blox 7 board and the MAX-M10S breakout have none: all five pads on
-each header are wired.
-
-| Receiver | Pad | What the pad is | Why it is left disconnected |
-|---|---|---|---|
-| LC29H(AA) board | R2 | UART2 receive: the input of the module's second serial port, which carries system debugging data only. 1.8 V logic, 1.98 V absolute maximum. | The ESP32 drives 3.3 V, which exceeds the pad's rating. Nothing the firmware needs is on UART2: NMEA, RTCM, commands and firmware updates are all on UART1 (T1, R1). |
-| LC29H(AA) board | T2 | UART2 transmit: the output of the same debug port, at 3 000 000 baud by default. 1.8 V logic. | Debug output only, and a 1.8 V output is below the ESP32's 2.48 V input-high threshold, so it could not be read directly anyway. |
-| LC29H(AA) board | ENT | A test point beside the header. What it carries has not been identified. | It is a probe pad for a scope or logic analyser, not a connection. |
-| LC29H(AA) board | R3, T3 | Test points beside the header. They are not a third serial port: the LC29H has only two UARTs. What they carry has not been identified. | Probe pads, not connections. |
-| LEA-M8T, J2 | pins 4, 7, 9, 10 | Unused positions of the 2 x 5 connector. The reverse-engineered schematic shows no net on any of them, so they lead nowhere on the card. | There is nothing to connect to. Leaving them open also means a wrong guess about the schematic cannot do harm. |
-| LEA-M8T, J2 | pin 1, VANT | The antenna bias input: the supply the card passes up the antenna cable to power an active antenna. The card does not generate it. | Conditional. With a passive antenna, leave it disconnected. With a 3.3 V active antenna, link it to V+ (pin 2). |
-
-The record is in `scripts/gps_modules.py`, which refuses to load a receiver
-that has a pad neither wired nor marked as disconnected.
+`scripts/gps_modules.py` holds the same record and refuses to load a
+receiver that has a pad neither wired nor marked as disconnected.
 
 ## At a glance
 
@@ -71,13 +60,15 @@ on ten64 until 2026-09-06.
 
 ![SuperMini to the u-blox 7 board](images/wiring-ublox7.svg)
 
-| SuperMini | Wire | Board pad |
-|---|---|---|
-| 3V3 | red | VCC |
-| G | black | GND |
-| GPIO4 | orange | RXD |
-| GPIO3 | blue | TXD |
-| GPIO1 | green | PPS |
+| Board pad | What the pad is | Wire | Connect to |
+|---|---|---|---|
+| VCC | supply input, 3.3 V | red | 3V3 |
+| GND | ground | black | G |
+| RXD | serial input: commands and RTCM corrections | orange | GPIO4 |
+| TXD | serial output: NMEA and UBX | blue | GPIO3 |
+| PPS | one pulse per second | green | GPIO1 |
+
+All five pads are wired. None is left disconnected.
 
 * Every pin is 3.3 V logic, so no level shifting.
 * The header order on the board is VCC, GND, RXD, TXD, PPS.
@@ -87,13 +78,15 @@ on ten64 until 2026-09-06.
 
 ![SuperMini to the MAX-M10S breakout](images/wiring-max-m10s.svg)
 
-| SuperMini | Wire | Board pad |
-|---|---|---|
-| 3V3 | red | V |
-| G | black | G |
-| GPIO3 | blue | T |
-| GPIO4 | orange | R |
-| GPIO1 | green | P |
+| Board pad | What the pad is | Wire | Connect to |
+|---|---|---|---|
+| V | supply input, 3.3 V | red | 3V3 |
+| G | ground | black | G |
+| T | serial output (the module's TX): NMEA and UBX | blue | GPIO3 |
+| R | serial input (the module's RX): commands and RTCM corrections | orange | GPIO4 |
+| P | one pulse per second | green | GPIO1 |
+
+All five pads are wired. None is left disconnected.
 
 * Supply is 3.3 V (2.7 to 3.6 V). Never use the 5V pin.
 * T is the module's output and R its input. If the module is silent, check
@@ -105,21 +98,17 @@ on ten64 until 2026-09-06.
 
 ![SuperMini to the LC29H(AA) board](images/wiring-lc29h.svg)
 
-| SuperMini | Wire | Board pad |
-|---|---|---|
-| 5V | yellow | V |
-| G | black | G |
-| GPIO3 | blue | T1 |
-| GPIO4 | orange | R1, through the divider |
-| GPIO1 | green | P |
-
-Pads left disconnected:
-
-| Pad | What it is |
-|---|---|
-| R2 | UART2 receive, the debug port's input (1.8 V logic) |
-| T2 | UART2 transmit, the debug port's output (1.8 V logic) |
-| ENT, R3, T3 | test points beside the header, function not identified |
+| Board pad | What the pad is | Wire | Connect to |
+|---|---|---|---|
+| V | supply input to the board's own regulator, 5 V | yellow | 5V |
+| G | ground | black | G |
+| T1 | UART1 output: NMEA, RTCM and PQTM. 2.8 V logic. | blue | GPIO3 |
+| R1 | UART1 input: commands and RTCM corrections. 2.8 V logic, 3.08 V absolute maximum. | orange | GPIO4, through the divider |
+| R2 | UART2 input. UART2 is a second serial port that carries system debugging data only. 1.8 V logic, 1.98 V absolute maximum. | none | **leave disconnected**: the ESP32's 3.3 V exceeds its rating, and nothing the firmware needs is on UART2 |
+| T2 | UART2 output: the same debug port, 3 000 000 baud by default. 1.8 V logic. | none | **leave disconnected**: debug output only, and 1.8 V is below the ESP32's 2.48 V input-high threshold |
+| P | one pulse per second, rising edge | green | GPIO1 |
+| ENT | test point beside the header, not on it. What it carries has not been identified. | none | **leave disconnected**: a probe pad, not a connection |
+| R3, T3 | test points beside the header, not on it. Not a third serial port: the LC29H has only two UARTs. What they carry has not been identified. | none | **leave disconnected**: probe pads, not connections |
 
 * **V takes 5 V.** The board has its own regulator. This was inferred from
   the regulator next to the POWER LED, not read from a datasheet, so check
@@ -129,9 +118,6 @@ Pads left disconnected:
   5.6 kΩ from the R1 side of it to ground: 3.3 V × 5.6 / 6.6 = 2.8 V.
 * T1 needs nothing. Its 2.8 V output is above the ESP32-C3's input-high
   threshold of 0.75 × 3.3 V = 2.48 V.
-* **Never connect T2 or R2.** They are a 1.8 V debug UART and 3.3 V exceeds
-  their rating.
-* **ENT, R3 and T3 are test points**, not connections. Leave them unwired.
 * The pads run V, G, T1, R1, R2, T2, P. V is the end beside the POWER LED
   and P the end beside the PPS LED.
 
@@ -139,21 +125,18 @@ Pads left disconnected:
 
 ![SuperMini to the LEA-M8T card](images/wiring-lea-m8t.svg)
 
-| SuperMini | Wire | J2 pin |
-|---|---|---|
-| 3V3 | red | 2, V+ |
-| G | black | 8, GND |
-| GPIO3 | blue | 3, TxD |
-| GPIO4 | orange | 5, RxD |
-| GPIO1 | green | 6, 1PPS |
-| link from J2 pin 2 | red | 1, VANT, only for an active antenna |
-
-Pads left disconnected:
-
-| J2 pin | What it is |
-|---|---|
-| 4, 7, 9, 10 | unused connector positions with no net on the card |
-| 1, VANT | antenna bias input: left disconnected with a passive antenna |
+| J2 pin | What the pin is | Wire | Connect to |
+|---|---|---|---|
+| 1, VANT | antenna bias input: the supply the card passes up the antenna cable to power an active antenna. The card does not generate it. | red link | J2 pin 2 (V+) for a 3.3 V active antenna. **Leave disconnected** for a passive antenna. |
+| 2, V+ | supply input, fed straight to the module: 3.3 V only | red | 3V3 |
+| 3, TxD | serial output: NMEA and UBX | blue | GPIO3 |
+| 4 | unused connector position: no net in the reverse-engineered schematic | none | **leave disconnected**: it leads nowhere on the card |
+| 5, RxD | serial input: commands and RTCM corrections | orange | GPIO4 |
+| 6, 1PPS | one pulse per second | green | GPIO1 |
+| 7 | unused connector position: no net in the schematic | none | **leave disconnected**: it leads nowhere on the card |
+| 8, GND | ground | black | G |
+| 9 | unused connector position: no net in the schematic | none | **leave disconnected**: it leads nowhere on the card |
+| 10 | unused connector position: no net in the schematic | none | **leave disconnected**: it leads nowhere on the card |
 
 * **3.3 V only.** The card has no regulator, so V+ feeds the module directly.
   5 V destroys it.
@@ -163,8 +146,6 @@ Pads left disconnected:
   (pin 1) reads a few ohms to the SMB centre pin.
 * **VANT is an input.** It is the antenna bias you supply. Link it to V+ for
   a 3.3 V active antenna and leave it open for a passive one.
-* **Leave J2 pins 4, 7, 9 and 10 disconnected.** They have no net in the
-  reverse-engineered schematic.
 * The diagram draws J2 with the odd-numbered row nearer the SuperMini. That
   is a drawing choice: which row is which on the card is what the meter check
   settles.
