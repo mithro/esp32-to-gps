@@ -9,7 +9,8 @@ receiver board, as docs/images/wiring-<module>.svg.
 The SuperMini is drawn to scale from the component side, USB-C up.  We have no
 measured outlines for the GPS boards, so each is a schematic block: its pads
 are in the order they have on the board and carry the names printed there,
-but the block is not to scale.
+but the block is not to scale.  A pad that must be left disconnected is
+crossed out in red, and each diagram lists those pads with the reason.
 
 Every wire leaves its SuperMini pin to the right, turns down (or up) a lane
 of its own in the gap, and runs right again into its pad.  A pad in the far
@@ -46,6 +47,7 @@ PAD_X = 2.6  # from the block's left edge to its near column of pads
 DIVIDER_W = 13.0  # extra gap for the resistors, where a wire has a divider
 MIN_GAP = 2.0  # parallel wires closer than this, side by side, are a clash
 STEP = sm.PITCH / 4  # board heights tried by the search
+NC = "#d81e1e"  # the cross on a pad that is left disconnected
 MIN_STEP = 3.2  # a vertical run shorter than this cannot fit its two rounded corners
 
 Pt = tuple[float, float]
@@ -175,17 +177,30 @@ def draw_pads(v: View, lay: Layout) -> None:
     cols = lay.cols
     for p in mod.pads:
         x, y = lay.xy(p.row, lay.col(p))
-        v.pad(x, y, label=p.number, used=p.name in wired)
+        if p.nc:  # left disconnected: crossed out, its number moves to the label
+            v.pad(x, y, used=False)
+            strike(v, x, y)
+        else:
+            v.pad(x, y, label=p.number, used=True)
     link_note = {b: label for _, b, label in mod.links}
     for row in sorted({p.row for p in mod.pads}):
         pads = sorted((p for p in mod.pads if p.row == row), key=lay.col)
         x, y = lay.xy(row, cols - 1)
-        names = " · ".join(p.name for p in pads if p.name)
-        live = any(p.name in wired for p in pads)
+        names = " · ".join(p.name or f"{p.number} n/c" for p in pads)
+        live = any(not p.nc for p in pads)
         v.text(x + 1.7, y, names, size=1.1, anchor="start", fill="#ffffff" if live else "#c9ced6", weight="bold")
-        note = next((p.note or link_note.get(p.name, "") for p in pads if p.note or p.name in link_note), "")
+        note = next((link_note[p.name] for p in pads if p.name in link_note), "")
+        if not note and cols == 1 and pads[0].nc:
+            note = "leave disconnected"
         if note:
             v.text(x + (10.4 if cols > 1 else 5.6), y, note, size=0.8, anchor="start", fill="#e6e8ec")
+
+
+def strike(v: View, x: float, y: float, r: float = 1.0) -> None:
+    """A red cross over a pad that is left disconnected."""
+    for width, stroke in ((0.55, "#ffffff"), (0.3, NC)):
+        v.line(x - r, y - r, x + r, y + r, stroke=stroke, width=width)
+        v.line(x - r, y + r, x + r, y - r, stroke=stroke, width=width)
 
 
 def draw_divider(v: View, lay: Layout) -> None:
@@ -256,6 +271,21 @@ def draw(mod: Module) -> None:
         parts.append(text(lx + 4.6, y, colour, 0.95, "bold"))
         parts.append(text(lx + 13.0, y, joins, 0.95))
         parts.append(text(lx + 28.0, y, purpose, 0.85, fill=MUTED))
+    # Everything on the GPS side that is left disconnected, with the reason.
+    y += 3.2
+    parts.append(text(lx, y, "Leave disconnected on the GPS board", 1.05, "bold"))
+    gone = mod.disconnected()
+    if not gone:
+        y += 2.2
+        parts.append(text(lx + 4.6, y, f"Nothing: all {len(mod.pads)} pads on the header are wired.", 0.95))
+    for pads, why in gone:
+        y += 2.2
+        k = View(0, 0)
+        k.circle(lx + 1.8, y, 0.6, fill="#9aa0a6", stroke=INK, width=0.1)
+        strike(k, lx + 1.8, y, 0.75)
+        parts.append(k.svg_group(0, 0))
+        parts.append(text(lx + 4.6, y, pads, 0.95, "bold"))
+        parts.append(text(lx + 28.0, y, why, 0.85, fill=MUTED))
     y += 3.2
     parts.append(text(lx, y, "Notes", 1.05, "bold"))
     for note in mod.notes:
