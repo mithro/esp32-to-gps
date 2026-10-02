@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  diagrams:
+    name: Regenerate the diagrams and check they match
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Regenerate every drawing
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          for s in draw_pinout draw_wiring; do uv run scripts/$s.py; done
+
+      # The scripts are deterministic, so the committed SVGs must match.
+      - name: Committed drawings are up to date
+        run: git diff --exit-code
