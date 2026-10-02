@@ -37,17 +37,20 @@ pad, and the receiver's TX pad goes to the ESP32's RX (GPIO3).
 ## Pads left disconnected
 
 Every pad on a receiver's header is either wired or recorded as left
-disconnected. Those pads are crossed out in red on the diagrams and listed
-under each one with the reason.
+disconnected ("NC", not connected). Those pads are crossed out in red on the
+diagrams and listed under each one with the reason.
 
-| Receiver | Leave disconnected | Why |
-|---|---|---|
-| u-blox 7 board | nothing | all five header pads are wired |
-| MAX-M10S breakout | nothing | all five header pads are wired |
-| LC29H(AA) board | R2, T2 | 1.8 V debug UART: 3.3 V exceeds its rating |
-| LC29H(AA) board | ENT, R3, T3 | test points beside the header: probe pads, not connections |
-| LEA-M8T, J2 | pins 4, 7, 9, 10 | no net in the reverse-engineered schematic |
-| LEA-M8T, J2 | pin 1, VANT, with a passive antenna | it is the antenna bias input; link it to V+ only for an active antenna |
+The u-blox 7 board and the MAX-M10S breakout have none: all five pads on
+each header are wired.
+
+| Receiver | Pad | What the pad is | Why it is left disconnected |
+|---|---|---|---|
+| LC29H(AA) board | R2 | UART2 receive: the input of the module's second serial port, which carries system debugging data only. 1.8 V logic, 1.98 V absolute maximum. | The ESP32 drives 3.3 V, which exceeds the pad's rating. Nothing the firmware needs is on UART2: NMEA, RTCM, commands and firmware updates are all on UART1 (T1, R1). |
+| LC29H(AA) board | T2 | UART2 transmit: the output of the same debug port, at 3 000 000 baud by default. 1.8 V logic. | Debug output only, and a 1.8 V output is below the ESP32's 2.48 V input-high threshold, so it could not be read directly anyway. |
+| LC29H(AA) board | ENT | A test point beside the header. What it carries has not been identified. | It is a probe pad for a scope or logic analyser, not a connection. |
+| LC29H(AA) board | R3, T3 | Test points beside the header. They are not a third serial port: the LC29H has only two UARTs. What they carry has not been identified. | Probe pads, not connections. |
+| LEA-M8T, J2 | pins 4, 7, 9, 10 | Unused positions of the 2 x 5 connector. The reverse-engineered schematic shows no net on any of them, so they lead nowhere on the card. | There is nothing to connect to. Leaving them open also means a wrong guess about the schematic cannot do harm. |
+| LEA-M8T, J2 | pin 1, VANT | The antenna bias input: the supply the card passes up the antenna cable to power an active antenna. The card does not generate it. | Conditional. With a passive antenna, leave it disconnected. With a 3.3 V active antenna, link it to V+ (pin 2). |
 
 The record is in `scripts/gps_modules.py`, which refuses to load a receiver
 that has a pad neither wired nor marked as disconnected.
@@ -109,8 +112,14 @@ on ten64 until 2026-09-06.
 | GPIO3 | blue | T1 |
 | GPIO4 | orange | R1, through the divider |
 | GPIO1 | green | P |
-| **leave disconnected** | | R2, T2 |
-| **leave disconnected** | | ENT, R3, T3 test points |
+
+Pads left disconnected:
+
+| Pad | What it is |
+|---|---|
+| R2 | UART2 receive, the debug port's input (1.8 V logic) |
+| T2 | UART2 transmit, the debug port's output (1.8 V logic) |
+| ENT, R3, T3 | test points beside the header, function not identified |
 
 * **V takes 5 V.** The board has its own regulator. This was inferred from
   the regulator next to the POWER LED, not read from a datasheet, so check
@@ -138,7 +147,13 @@ on ten64 until 2026-09-06.
 | GPIO4 | orange | 5, RxD |
 | GPIO1 | green | 6, 1PPS |
 | link from J2 pin 2 | red | 1, VANT, only for an active antenna |
-| **leave disconnected** | | 4, 7, 9, 10 |
+
+Pads left disconnected:
+
+| J2 pin | What it is |
+|---|---|
+| 4, 7, 9, 10 | unused connector positions with no net on the card |
+| 1, VANT | antenna bias input: left disconnected with a passive antenna |
 
 * **3.3 V only.** The card has no regulator, so V+ feeds the module directly.
   5 V destroys it.
