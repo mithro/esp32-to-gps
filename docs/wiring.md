@@ -34,6 +34,24 @@ Pins kept free:
 The UART is always crossed: the ESP32's TX (GPIO4) goes to the receiver's RX
 pad, and the receiver's TX pad goes to the ESP32's RX (GPIO3).
 
+## Pads left disconnected
+
+Every pad on a receiver's header is either wired or recorded as left
+disconnected. Those pads are crossed out in red on the diagrams and listed
+under each one with the reason.
+
+| Receiver | Leave disconnected | Why |
+|---|---|---|
+| u-blox 7 board | nothing | all five header pads are wired |
+| MAX-M10S breakout | nothing | all five header pads are wired |
+| LC29H(AA) board | R2, T2 | 1.8 V debug UART: 3.3 V exceeds its rating |
+| LC29H(AA) board | ENT, R3, T3 | test points beside the header: probe pads, not connections |
+| LEA-M8T, J2 | pins 4, 7, 9, 10 | no net in the reverse-engineered schematic |
+| LEA-M8T, J2 | pin 1, VANT, with a passive antenna | it is the antenna bias input; link it to V+ only for an active antenna |
+
+The record is in `scripts/gps_modules.py`, which refuses to load a receiver
+that has a pad neither wired nor marked as disconnected.
+
 ## At a glance
 
 | Receiver | Supply pin | Default baud | Level shifting | Corrections it accepts |
@@ -91,7 +109,8 @@ on ten64 until 2026-09-06.
 | GPIO3 | blue | T1 |
 | GPIO4 | orange | R1, through the divider |
 | GPIO1 | green | P |
-| not connected | | R2, T2 |
+| **leave disconnected** | | R2, T2 |
+| **leave disconnected** | | ENT, R3, T3 test points |
 
 * **V takes 5 V.** The board has its own regulator. This was inferred from
   the regulator next to the POWER LED, not read from a datasheet, so check
@@ -101,7 +120,9 @@ on ten64 until 2026-09-06.
   5.6 kΩ from the R1 side of it to ground: 3.3 V × 5.6 / 6.6 = 2.8 V.
 * T1 needs nothing. Its 2.8 V output is above the ESP32-C3's input-high
   threshold of 0.75 × 3.3 V = 2.48 V.
-* **Never connect T2 or R2.** They are a 1.8 V debug UART.
+* **Never connect T2 or R2.** They are a 1.8 V debug UART and 3.3 V exceeds
+  their rating.
+* **ENT, R3 and T3 are test points**, not connections. Leave them unwired.
 * The pads run V, G, T1, R1, R2, T2, P. V is the end beside the POWER LED
   and P the end beside the PPS LED.
 
@@ -117,6 +138,7 @@ on ten64 until 2026-09-06.
 | GPIO4 | orange | 5, RxD |
 | GPIO1 | green | 6, 1PPS |
 | link from J2 pin 2 | red | 1, VANT, only for an active antenna |
+| **leave disconnected** | | 4, 7, 9, 10 |
 
 * **3.3 V only.** The card has no regulator, so V+ feeds the module directly.
   5 V destroys it.
@@ -126,7 +148,8 @@ on ten64 until 2026-09-06.
   (pin 1) reads a few ohms to the SMB centre pin.
 * **VANT is an input.** It is the antenna bias you supply. Link it to V+ for
   a 3.3 V active antenna and leave it open for a passive one.
-* J2 pins 4, 7, 9 and 10 are not connected.
+* **Leave J2 pins 4, 7, 9 and 10 disconnected.** They have no net in the
+  reverse-engineered schematic.
 * The diagram draws J2 with the odd-numbered row nearer the SuperMini. That
   is a drawing choice: which row is which on the card is what the meter check
   settles.
