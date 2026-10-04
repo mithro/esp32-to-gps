@@ -37,15 +37,18 @@ def gnss_dir() -> pathlib.Path:
 def cdefs(src: pathlib.Path) -> str:
     """Every header, preprocessed, with what cffi's parser cannot take removed."""
     headers = sorted(src.glob("gnss_*.h"))
-    text = "".join(f'#include "{h.name}"\n' for h in headers)
+    # System headers first, then a marker, then ours: everything before the
+    # marker is the C library's own declarations, which cffi does not need.
+    marker = "typedef int gnss_cdef_marker_t;"
+    text = "#include <stdbool.h>\n#include <stddef.h>\n#include <stdint.h>\n" + marker + "\n"
+    text += "".join(f'#include "{h.name}"\n' for h in headers)
     out = subprocess.run(["cc", "-E", "-P", "-std=c99", "-I", str(src), "-"], input=text,
                          capture_output=True, text=True, check=True).stdout
-    # Drop the system headers' own declarations: keep from our first typedef on.
-    out = out[out.index("typedef enum {\n  GNSS_GPS"):]
+    out = out[out.index(marker) + len(marker):]
     out = re.sub(r"__attribute__\s*\(\(.*?\)\)", "", out)
     # The preprocessor consumed the #defines; give cffi back the integer ones.
     defines = [m.group(0) for h in headers
-               for m in re.finditer(r"^#define [A-Z][A-Z0-9_]+ +-?(0x[0-9a-fA-F]+|\d+)u?$", h.read_text(), re.M)]
+               for m in re.finditer(r"^#define [A-Z][A-Z0-9_]+ +-?(0x[0-9a-fA-F]+|\d+)(?=\s*(/\*.*)?$)", h.read_text(), re.M)]
     return "\n".join(d.rstrip("u") for d in defines) + "\n" + out
 
 
