@@ -282,3 +282,12 @@ def test_every_config_fits_the_driver_buffer(ffi, lib, keep):
     topic, payload = ffi.new("char[256]"), ffi.new("char[1024]")
     for i in range(lib.gnss_hass_count()):
         assert lib.gnss_hass_config(i, dev, topic, 256, payload, 1024) > 0, i
+
+
+def test_docs_list_every_entity(ffi, lib, keep):
+    """firmware/docs/mqtt-home-assistant.md has a row for each entity, and no others."""
+    import re
+    doc = (FIXTURES.parent / "docs" / "mqtt-home-assistant.md").read_text()
+    documented = set(re.findall(r"^\| `([a-z0-9_]+)` \|", doc, re.M))
+    created = {c["uniq_id"][len(UID) + 1:] for _, c in configs(ffi, lib, keep)}
+    assert documented == created
