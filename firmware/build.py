@@ -32,7 +32,7 @@ import sys
 
 TASMOTA_REPO = "https://github.com/mithro/Tasmota.git"
 TASMOTA_BRANCH = "esp32-to-gps"
-TASMOTA_SHA = "81e6192dec50fb310a7bc8a471f4ee4e3bd51f08"  # branch esp32-to-gps
+TASMOTA_SHA = "323e0a355866187377527835b74dfd9d40531191"  # branch saved-receiver (mithro/Tasmota#1)
 ENV = "tasmota32c3-gps"
 PIOARDUINO = "pioarduino==6.2.0"  # the PlatformIO fork upstream Tasmota CI builds with
 
