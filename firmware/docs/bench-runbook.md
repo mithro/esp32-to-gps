@@ -45,8 +45,9 @@ message that shows it.
 
 | # | Check | How | Pass when |
 |---|---|---|---|
-| 1 | The receiver is found | console, `GpsStatus` | log `GPS: <model> (...) at <baud> baud`; `Receiver.Model` set |
-| 2 | It is configured | console | `GPS: configured`; no `ACK-NAK` piling up (`Health` counters move, `UBXBad` / `NMEABad` stay near 0) |
+| 0 | Start clean | `GpsModule auto`, then `GpsReinit` | `GpsConfig` shows `"Remembered":{"Module":"none"...}` |
+| 1 | The receiver is found and identified | console, `GpsConfig` | log `GPS: identified <model> (<type>) at <baud> baud`; `GpsConfig` now remembers that type and speed |
+| 2 | It is configured | console | `GPS: <type> configured`; no `ACK-NAK` piling up (`Health` counters move, `UBXBad` / `NMEABad` stay near 0) |
 | 3 | Data flows | `GpsStatus` twice, 10 s apart | `Health.NMEA` or `Health.UBX` rising; `LastData` 0 or 1 |
 | 4 | Satellites | `tele/<topic>/GNSS_SATS` | satellites listed with elevation, azimuth and C/N0; per-constellation counts plausible for the receiver |
 | 5 | Fix | `GpsStatus` | `Fix` 3D, `Lat` / `Lon` / `AltMSL` right for the bench, `HAcc` reasonable |
@@ -56,8 +57,10 @@ message that shows it.
 | 9 | Corrections used | `GpsStatus` | the receiver says so: `Quality` DGNSS, `DiffAge` set, or `Corrections.Used` rising. **Record it either way**: on these receivers this is the open question |
 | 10 | Home Assistant | the device page in Home Assistant | every entity in [mqtt-home-assistant.md](mqtt-home-assistant.md) present; the values above shown; nothing "unavailable" while the ESP32 is online |
 | 11 | Per-satellite entities | `GpsSatEntities 1`, wait a minute, then `GpsSatEntities 0` | entities appear for each satellite, then go away |
-| 12 | Recovery | unplug the receiver's supply for 10 s, plug it back | log `receiver silent, searching again`, then steps 1-3 pass again on their own |
-| 13 | Reboot | `Restart 1` | steps 1-8 pass again without intervention |
+| 12 | Recovery | unplug the receiver's supply for 10 s, plug it back | log `receiver silent, looking for it again`, then `<type> receiver at <baud> baud, as last time` and steps 2-3 pass again on their own |
+| 13 | Reboot, no detection | `Restart 1` | log `<type> receiver at <baud> baud, as last time` within a few seconds of start, **no** `identified` line; steps 2-8 pass |
+| 14 | Power cycle, no detection | cut the power to the ESP32 and the receiver together | as step 13. For the u-blox 7 and LEA-M8T this tests the fall back from 38400 to the 9600 they start at |
+| 15 | Swapped receiver | with `GpsModule auto`, wire in a different receiver and restart | it is found and configured as the new type, and `GpsConfig` remembers the new one |
 
 ## What to expect from each receiver
 
