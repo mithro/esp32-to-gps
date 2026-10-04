@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Ntrip-Version: Ntrip/2.0
+Server: ntrip-rtcm3-to-rtcm2p3
+Content-Type: gnss/data
+Connection: close
+
+fArD^F|^DJF}}aTXZEDc_bzuyuz_}kWrfuI@j~|xtI|]_~[UxbtlXaqdEmC@T^PBlGt@U]cO\lM@GHCIKXB@pm^UiM@WfArD{yCn{BG}_onPez{s_v\RFNE@mw|zfDvU\bntI|y@`EtXxbtlXtxd{S|oyIwAlGy@upmucWr_rGRtp}O|UFhM@bY~M{DFBYD`yBBuc{fj{{Gd_FJE`gSRufxI@jeJKvCj@`qsxG]K@vH|wd@mC@tlo~Cxh@Pv~Z\hM`hGJutDB@p[whWrPfArD{y]j{zyBBgbwej{xwsMFNE@HH~DYJw_YHWKvBy@`~ECxbtIWy@[aR|[__@|Gf@PAdN\hM`MhJHKk}OvIwkM@nY~M{DFR\DRG}_gDdj{S@@DLuyuz_}o|uf@ven~PwI|R_v}lG]K@S{MJ[YlCPLj`|Cxc@Pqs\\hM`hwl|tb|CqoWryY~M{ayMm{rxB`pc{fz{b_xzoyuzj@P~f[w_EjGwI|c@`CzG]K@vxFvdPmC@xgP|Cxe@PrjW\hM`hj~tg|SXOiM@oY~M{DFJZDaxB`h[oYUDo{sJFJE@pPnufnH@`v{xvI|q@`ue]xbtldL}d@lC`aZ|CxEoycucWr@OmMKm|SXPkM@YfArD{yuh{SG}_gPfz{loRf\FJE@UzJYEvEwVCHvCJ_|c@xbtIk~J[_lC`I\rA|Gg@Pz]acWreHcrtMB@p|toTrCfArD^Fj_DRF}]abUdj{^@@t]pyqzwwCqfZvehLSHvCR_JdG]K@vx`td\lC`[xW|Sxp@IqME\hM`MPxOKe|SXokM@xY~M{ayen{tyBbmHSYEDl_yykyuzjp`pfDw_iSHJfCo@vy]Bxftq@|zdCmC@XpP~Cxl@PFJQ\hM@ZOEDKMB@p|tETr}Y~M{ayEg{@F}]Np{dz{kowR_FJE@U_AAY}H@`VlPvY|x@vBxOxftq@BudPmC@xgo}CxRoMjvcSrxO@qtLE@@LLOkM@fY~M{DFFTDUF}]APOZEDw_jkCFJE`B@BIYdH@`NTwKvCA_FTcG]K@SgAG[YlC`uiv}Sxm@q[iM\hM@H@qte|CqgTrM
