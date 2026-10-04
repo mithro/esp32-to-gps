@@ -72,7 +72,8 @@ def test_m8(ffi, lib):
 
 def test_m10(ffi, lib):
     cmds = commands(ffi, lib, "UBLOX_M10")
-    assert len(cmds) == 1 and cmds[0][1] == 0
+    assert len(cmds) == 2 and cmds[0][1] == 0 and cmds[1][1] == 0
+    assert cmds[1][0] == b"\xb5\x62\x0a\x04\x00\x00\x0e\x34"  # then MON-VER, for the model and firmware
     m = ubx(cmds[0][0])
     assert m.identity == "CFG-VALSET" and (m.ram, m.bbr, m.flash) == (1, 0, 0)
     got = {k: v for k, v in m.__dict__.items() if k.startswith("CFG_")}
@@ -91,7 +92,7 @@ def test_m10(ffi, lib):
 
 def test_lc29h(ffi, lib):
     cmds = [c for c, _ in commands(ffi, lib, "QUECTEL_LC29H")]
-    assert cmds == [b"$PAIR021*39\r\n", b"$PAIR062,8,1*37\r\n"]
+    assert cmds == [b"$PQTMVERNO*58\r\n", b"$PAIR021*39\r\n", b"$PAIR062,8,1*37\r\n"]
 
 
 def test_unknown_module_gets_nothing(ffi, lib):

@@ -162,18 +162,37 @@ There can be 60 or more at once on a multi-constellation receiver.
 
 | Command | Meaning |
 |---|---|
-| `GpsBaud <speed>` | fix the receiver's UART speed; `0` searches 9600, 38400 and 115200 (default) |
+| `GpsModule auto\|ublox7\|m8\|m10\|lc29h` | the receiver type. `auto` (the default) identifies it once and remembers it; a type set here is used without identifying |
+| `GpsBaud <speed>` | fix the receiver's UART speed; `0` finds it (default) |
+| `GpsConfig` | every setting, including the remembered receiver and its speed (the NTRIP password shows as `****`) |
 | `GpsNtrip 0` | corrections off |
 | `GpsNtrip 1` | corrections from the ten64 proxy, `10.1.10.1:2101`, mountpoint by receiver (default) |
 | `GpsNtrip <host>:<port>/<mount>[ <user> <password>]` | corrections from another caster |
 | `GpsPeriod <seconds>` | how often `GNSS` is published, 1-3600 |
 | `GpsSatEntities 0\|1` | per-satellite entities |
 | `GpsHass 0\|1` | Home Assistant discovery |
-| `GpsReinit` | identify and configure the receiver again |
+| `GpsReinit` | forget the remembered receiver and identify it again; with `GpsModule` set, configure it again |
 | `GpsStatus` | reply with the full state, as on `GNSS` |
 
 Settings are kept in `/gnss.cfg` on the ESP32's file system. The older
 `Sensor60` commands work as before.
+
+### Start-up
+
+The first time, the firmware searches 9600, 38400 and 115200 baud for the
+receiver, identifies it (UBX MON-VER, then Quectel `$PQTMVERNO`) and saves
+the type and the speed it was found at. After that it opens the UART at that
+speed (or the speed it runs the receiver at, or the receiver's power-up
+default) and configures the receiver as soon as data arrives: no search, no
+identification. It falls back to a full search only if the receiver stays
+silent at those speeds.
+
+The configuration itself is sent at every start, because it goes to the
+receiver's RAM: the MAX-M10S has no flash, and none of the receivers keeps
+it through a power cut. Each configuration ends with an identity query. If
+the reply shows a different receiver from the remembered one, the new one is
+saved and configured. A receiver set with `GpsModule` is kept, and the
+mismatch is logged.
 
 | Receiver | Corrections mountpoint |
 |---|---|

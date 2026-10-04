@@ -30,8 +30,11 @@ This repository holds the build settings, the host tests and the docs.
 
 ## What it does
 
-* Finds the receiver's speed (9600, 38400, 115200), identifies it (UBX
-  MON-VER, then Quectel `$PQTMVERNO`) and configures it in RAM.
+* The first time, finds the receiver's speed (9600, 38400, 115200),
+  identifies it (UBX MON-VER, then Quectel `$PQTMVERNO`) and remembers it.
+  Later boots go straight to the remembered receiver and configure it in RAM
+  ([start-up](docs/mqtt-home-assistant.md#start-up)). `GpsModule` sets the
+  type by hand.
 * Reads everything the receiver reports: position, time, motion, accuracy,
   DOPs, every satellite with its signal, antenna and jamming status.
 * Fetches RTCM corrections from the NTRIP proxy on ten64 and passes them to
