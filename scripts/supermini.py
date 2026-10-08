@@ -28,12 +28,12 @@ ANT_X0, ANT_X1, ANT_H = 5.5, 12.5, 2.6
 
 # Wire colour for each SuperMini pin a GPS module uses: (colour name, fill).
 # The colour follows the signal, named from the GPS board's side: red is the
-# supply (3V3, or 5V for the LC29H's VCC), black ground, yellow the board's
-# RXD (driven by GPIO4), blue its TXD (read on GPIO3) and green PPS.
+# 3.3 V supply, orange the 5 V one (the LC29H takes it), black ground, yellow
+# the board's RXD (driven by GPIO4), blue its TXD (read on GPIO3), green PPS.
 WIRES = {
     "G": ("black", "#26262e"),
     "3V3": ("red", "#d81e1e"),
-    "5V": ("red", "#d81e1e"),
+    "5V": ("orange", "#f28c1e"),
     "4": ("yellow", "#f2d21e"),
     "3": ("blue", "#2464c8"),
     "1": ("green", "#2e9e4f"),

@@ -14,7 +14,7 @@ Only the supply pin and the pad names on the receiver change.
 
 | SuperMini pin | Wire | Role |
 |---|---|---|
-| 5V | red | 5 V supply, LC29H board only |
+| 5V | orange | 5 V supply, LC29H board only |
 | G | black | ground |
 | 3V3 | red | 3.3 V supply, u-blox boards |
 | GPIO4 | yellow | ESP32 TX to GPS RX: commands and RTCM corrections |
@@ -101,7 +101,7 @@ All five pads are wired. None is left disconnected.
 
 | Board pad | What the pad is | Wire | Connect to |
 |---|---|---|---|
-| V | supply input to the board's own regulator, 5 V | red | 5V |
+| V | supply input to the board's own regulator, 5 V | orange | 5V |
 | G | ground | black | G |
 | T1 | UART1 output: NMEA, RTCM and PQTM. 2.8 V logic. | blue | GPIO3 |
 | R1 | UART1 input: commands and RTCM corrections. 2.8 V logic, 3.08 V absolute maximum. | yellow | GPIO4, through the divider |
