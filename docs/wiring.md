@@ -71,7 +71,8 @@ on ten64 until 2026-09-06.
 All five pads are wired. None is left disconnected.
 
 * Every pin is 3.3 V logic, so no level shifting.
-* The header order on the board is VCC, GND, RXD, TXD, PPS.
+* Seen from above the header pins, the order is PPS, TXD, RXD, GND, VCC:
+  green, blue, yellow, black, red.
 * It accepts RTCM 2.3 corrections only.
 
 ## u-blox MAX-M10S breakout

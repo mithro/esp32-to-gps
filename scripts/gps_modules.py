@@ -91,7 +91,8 @@ UBLOX7 = Module(
     fill="#1f7a4d",
     supply="3.3 V",
     baud=9600,
-    pads=(Pad("VCC", 0), Pad("GND", 1), Pad("RXD", 2), Pad("TXD", 3), Pad("PPS", 4)),
+    # As seen from above the header pins, top to bottom.
+    pads=(Pad("PPS", 0), Pad("TXD", 1), Pad("RXD", 2), Pad("GND", 3), Pad("VCC", 4)),
     wires=(Wire("3V3", "VCC"), Wire("G", "GND"), Wire("4", "RXD"), Wire("3", "TXD"), Wire("1", "PPS")),
     notes=(
         "Every pin is 3.3 V logic, so the wires go straight across: the hook-up ten64 used.",
