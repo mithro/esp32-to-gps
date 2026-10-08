@@ -79,9 +79,9 @@
 <circle cx="182.8" cy="130.9" r="8.8" fill="#2464c8" stroke="#1a1a2e" stroke-width="1.65"/>
 <circle cx="389.4" cy="170.3" r="8.8" fill="#2464c8" stroke="#1a1a2e" stroke-width="1.65"/>
 <path d="M 182.8 103.0 L 261.8 103.0 Q 279.4 103.0 279.4 120.6 L 279.4 180.7 Q 279.4 198.3 297.0 198.3 L 389.4 198.3" fill="none" stroke="#1a1a2e" stroke-width="14.3" stroke-linecap="round"/>
-<path d="M 182.8 103.0 L 261.8 103.0 Q 279.4 103.0 279.4 120.6 L 279.4 180.7 Q 279.4 198.3 297.0 198.3 L 389.4 198.3" fill="none" stroke="#f28c1e" stroke-width="9.4" stroke-linecap="round"/>
-<circle cx="182.8" cy="103.0" r="8.8" fill="#f28c1e" stroke="#1a1a2e" stroke-width="1.65"/>
-<circle cx="389.4" cy="198.3" r="8.8" fill="#f28c1e" stroke="#1a1a2e" stroke-width="1.65"/>
+<path d="M 182.8 103.0 L 261.8 103.0 Q 279.4 103.0 279.4 120.6 L 279.4 180.7 Q 279.4 198.3 297.0 198.3 L 389.4 198.3" fill="none" stroke="#f2d21e" stroke-width="9.4" stroke-linecap="round"/>
+<circle cx="182.8" cy="103.0" r="8.8" fill="#f2d21e" stroke="#1a1a2e" stroke-width="1.65"/>
+<circle cx="389.4" cy="198.3" r="8.8" fill="#f2d21e" stroke="#1a1a2e" stroke-width="1.65"/>
 <path d="M 182.8 186.8 L 213.4 186.8 Q 231.0 186.8 231.0 204.4 L 231.0 208.6 Q 231.0 226.2 248.6 226.2 L 389.4 226.2" fill="none" stroke="#1a1a2e" stroke-width="14.3" stroke-linecap="round"/>
 <path d="M 182.8 186.8 L 213.4 186.8 Q 231.0 186.8 231.0 204.4 L 231.0 208.6 Q 231.0 226.2 248.6 226.2 L 389.4 226.2" fill="none" stroke="#2e9e4f" stroke-width="9.4" stroke-linecap="round"/>
 <circle cx="182.8" cy="186.8" r="8.8" fill="#2e9e4f" stroke="#1a1a2e" stroke-width="1.65"/>
@@ -115,8 +115,8 @@
 <text x="105.6" y="507.8" font-size="10.4" font-family="Helvetica, Arial, sans-serif" font-weight="bold" fill="#1a1a2e" text-anchor="start" dy="0.36em">blue</text>
 <text x="198.0" y="507.8" font-size="10.4" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="start" dy="0.36em">GPIO3 → T</text>
 <text x="363.0" y="507.8" font-size="9.3" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#555c66" text-anchor="start" dy="0.36em">ESP32 RX from GPS TX (NMEA / UBX)</text>
-<rect x="55.0" y="526.0" width="39.6" height="12.1" fill="#f28c1e" stroke="#1a1a2e" stroke-width="1.1" rx="5.0"/>
-<text x="105.6" y="532.0" font-size="10.4" font-family="Helvetica, Arial, sans-serif" font-weight="bold" fill="#1a1a2e" text-anchor="start" dy="0.36em">orange</text>
+<rect x="55.0" y="526.0" width="39.6" height="12.1" fill="#f2d21e" stroke="#1a1a2e" stroke-width="1.1" rx="5.0"/>
+<text x="105.6" y="532.0" font-size="10.4" font-family="Helvetica, Arial, sans-serif" font-weight="bold" fill="#1a1a2e" text-anchor="start" dy="0.36em">yellow</text>
 <text x="198.0" y="532.0" font-size="10.4" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="start" dy="0.36em">GPIO4 → R</text>
 <text x="363.0" y="532.0" font-size="9.3" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#555c66" text-anchor="start" dy="0.36em">ESP32 TX to GPS RX (commands, RTCM corrections)</text>
 <rect x="55.0" y="550.2" width="39.6" height="12.1" fill="#2e9e4f" stroke="#1a1a2e" stroke-width="1.1" rx="5.0"/>

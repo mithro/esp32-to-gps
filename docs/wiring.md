@@ -14,10 +14,10 @@ Only the supply pin and the pad names on the receiver change.
 
 | SuperMini pin | Wire | Role |
 |---|---|---|
-| 5V | yellow | 5 V supply, LC29H board only |
+| 5V | red | 5 V supply, LC29H board only |
 | G | black | ground |
 | 3V3 | red | 3.3 V supply, u-blox boards |
-| GPIO4 | orange | ESP32 TX to GPS RX: commands and RTCM corrections |
+| GPIO4 | yellow | ESP32 TX to GPS RX: commands and RTCM corrections |
 | GPIO3 | blue | ESP32 RX from GPS TX: NMEA and UBX |
 | GPIO1 | green | PPS input |
 
@@ -64,7 +64,7 @@ on ten64 until 2026-09-06.
 |---|---|---|---|
 | VCC | supply input, 3.3 V | red | 3V3 |
 | GND | ground | black | G |
-| RXD | serial input: commands and RTCM corrections | orange | GPIO4 |
+| RXD | serial input: commands and RTCM corrections | yellow | GPIO4 |
 | TXD | serial output: NMEA and UBX | blue | GPIO3 |
 | PPS | one pulse per second | green | GPIO1 |
 
@@ -83,7 +83,7 @@ All five pads are wired. None is left disconnected.
 | V | supply input, 3.3 V | red | 3V3 |
 | G | ground | black | G |
 | T | serial output (the module's TX): NMEA and UBX | blue | GPIO3 |
-| R | serial input (the module's RX): commands and RTCM corrections | orange | GPIO4 |
+| R | serial input (the module's RX): commands and RTCM corrections | yellow | GPIO4 |
 | P | one pulse per second | green | GPIO1 |
 
 All five pads are wired. None is left disconnected.
@@ -100,10 +100,10 @@ All five pads are wired. None is left disconnected.
 
 | Board pad | What the pad is | Wire | Connect to |
 |---|---|---|---|
-| V | supply input to the board's own regulator, 5 V | yellow | 5V |
+| V | supply input to the board's own regulator, 5 V | red | 5V |
 | G | ground | black | G |
 | T1 | UART1 output: NMEA, RTCM and PQTM. 2.8 V logic. | blue | GPIO3 |
-| R1 | UART1 input: commands and RTCM corrections. 2.8 V logic, 3.08 V absolute maximum. | orange | GPIO4, through the divider |
+| R1 | UART1 input: commands and RTCM corrections. 2.8 V logic, 3.08 V absolute maximum. | yellow | GPIO4, through the divider |
 | R2 | UART2 input. UART2 is a second serial port that carries system debugging data only. 1.8 V logic, 1.98 V absolute maximum. | none | **leave disconnected**: the ESP32's 3.3 V exceeds its rating, and nothing the firmware needs is on UART2 |
 | T2 | UART2 output: the same debug port, 3 000 000 baud by default. 1.8 V logic. | none | **leave disconnected**: debug output only, and 1.8 V is below the ESP32's 2.48 V input-high threshold |
 | P | one pulse per second, rising edge | green | GPIO1 |
@@ -131,7 +131,7 @@ All five pads are wired. None is left disconnected.
 | 2, V+ | supply input, fed straight to the module: 3.3 V only | red | 3V3 |
 | 3, TxD | serial output: NMEA and UBX | blue | GPIO3 |
 | 4 | unused connector position: no net in the reverse-engineered schematic | none | **leave disconnected**: it leads nowhere on the card |
-| 5, RxD | serial input: commands and RTCM corrections | orange | GPIO4 |
+| 5, RxD | serial input: commands and RTCM corrections | yellow | GPIO4 |
 | 6, 1PPS | one pulse per second | green | GPIO1 |
 | 7 | unused connector position: no net in the schematic | none | **leave disconnected**: it leads nowhere on the card |
 | 8, GND | ground | black | G |
