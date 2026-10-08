@@ -18,6 +18,7 @@ class Pad:
     col: int = 0  # 0 = the column nearer the SuperMini, 1 = the far column
     number: str = ""  # pin number, for headers that are numbered
     nc: str = ""  # set when the pad must be left disconnected: the reason why
+    square: bool = False  # a square pad, as boards mark pin 1
 
 
 @dataclass(frozen=True)
@@ -31,7 +32,7 @@ class Feature:
     w: float  # size; a circle's diameter is w
     h: float = 0.0
     label: str = ""
-    label_pos: str = "inside"  # inside, below, above, right
+    label_pos: str = "inside"  # inside, below, above, left, right
 
 
 @dataclass(frozen=True)
@@ -107,13 +108,31 @@ class Module:
 UBLOX7 = Module(
     key="ublox7",
     title="u-blox 7 board",
-    heading="u-blox 7 board (the \"GT-U7\" entry)",
-    layout="Pad order as seen from above the pins. Other parts not drawn yet: no photo of this board.",
-    fill="#1f7a4d",
+    heading="GoouuuTech GT-U7 (u-blox 7)",
+    layout="Component side from its dimensioned drawing, turned a quarter turn anticlockwise so the header "
+           "(along its top edge) faces the SuperMini. Not to scale.",
+    fill="#26262e",
     supply="3.3 V",
     baud=9600,
-    # As seen from above the header pins, top to bottom.
+    # Board 27.6 x 26.6 mm; turned, the header is the left edge and the pad
+    # that is rightmost in the board's own drawing is at the top. Features are
+    # the drawing's positions turned the same way, shifted 1.5 mm right to
+    # line up with the drawn pads.
+    width=28.1,
+    top=8.7,
+    foot=8.8,
     pads=(Pad("PPS", 0), Pad("TXD", 1), Pad("RXD", 2), Pad("GND", 3), Pad("VCC", 4)),
+    features=(
+        Feature("chip", 13.6, 13.6, 12.1, 16.2, label="GT-U7"),
+        Feature("cell", 4.6, 3.5, 4.8, label="backup", label_pos="right"),
+        Feature("part", 14.9, 2.9, 5.0, 3.0, label="IC"),
+        Feature("part", 9.4, 2.7, 2.0, 1.0),
+        Feature("connector", 21.4, 2.9, 2.4, 2.4, label="U.FL antenna", label_pos="below"),
+        Feature("connector", 25.0, 13.7, 6.2, 8.6, label="micro-USB"),
+        Feature("hole", 24.1, 23.2, 4.6),
+        Feature("led", 19.5, 24.8, 1.6, 0.9, label="LED D1", label_pos="left"),
+        Feature("part", 8.7, 24.8, 3.0, 3.0),
+    ),
     wires=(Wire("3V3", "VCC"), Wire("G", "GND"), Wire("4", "RXD"), Wire("3", "TXD"), Wire("1", "PPS")),
     notes=(
         "Every pin is 3.3 V logic, so no level shifting is needed: the hook-up ten64 used.",
@@ -126,15 +145,23 @@ MAXM10S = Module(
     key="max-m10s",
     title="u-blox MAX-M10S breakout",
     heading="MAX-M10S breakout",
-    layout="Pad names from the ten64 bench notes. Order and other parts not yet checked: no photo of this board.",
-    fill="#1c6b9c",
+    layout="Component side, header on the left, from a product photo. On the back: the U.FL antenna "
+           "connector and the backup cell. Not to scale.",
+    fill="#26262e",
     supply="3.3 V",
     baud=38400,
-    pads=(Pad("V", 0), Pad("G", 1), Pad("T", 2), Pad("R", 3), Pad("P", 4)),
-    wires=(Wire("3V3", "V"), Wire("G", "G"), Wire("3", "T"), Wire("4", "R"), Wire("1", "P")),
+    width=18.5,
+    top=1.6,
+    foot=1.4,
+    # As the silkscreen reads, top to bottom; PPS has the square pad.
+    pads=(Pad("VCC", 0), Pad("GND", 1), Pad("TX", 2), Pad("RX", 3), Pad("PPS", 4, square=True)),
+    features=(
+        Feature("chip", 12.55, 6.1, 10.3, 9.6, label="MAX-M10S"),
+    ),
+    wires=(Wire("3V3", "VCC"), Wire("G", "GND"), Wire("3", "TX"), Wire("4", "RX"), Wire("1", "PPS")),
     notes=(
         "Supply is 3.3 V (2.7 to 3.6 V). Never use the 5V pin.",
-        "T is the module's output and R its input. If the module is silent, check these two first.",
+        "TX is the module's output and RX its input. If the module is silent, check these two first.",
         "Default UART speed is 38400 baud. The module has no flash, so the firmware configures it at every boot.",
     ),
 )

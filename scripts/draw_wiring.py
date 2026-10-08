@@ -43,7 +43,7 @@ OUT = pathlib.Path(__file__).resolve().parent.parent / "docs" / "images"
 PAGE_W = 92.0  # every diagram the same width
 LANE = 2.2  # mm between parallel wires in the gap (the wires are 1.3 mm wide)
 LANE_X0 = sm.BOARD_W + 3.0  # first lane, in the SuperMini's frame
-CAPTION_H = 4.2  # the board's name and layout note, above its outline
+CAPTION_H = 2.8  # the board's name, above its outline
 PAD_X = 2.6  # from the block's left edge to its near column of pads
 DIVIDER_W = 13.0  # extra gap for the resistors, where a wire has a divider
 MIN_GAP = 2.0  # parallel wires closer than this, side by side, are a clash
@@ -182,8 +182,7 @@ def draw_module(v: View, lay: Layout) -> None:
     """The board outline, its name above it, and its other parts for reference."""
     mod, mx, my = lay.mod, lay.mx, lay.my
     v.rect(mx, my, mx + mod.width, my + lay.h, fill=mod.fill, stroke=INK, width=0.25, rx=0.8)
-    v.text(mx, my - 3.0, mod.heading, size=1.25, anchor="start", weight="bold")
-    v.text(mx, my - 1.3, mod.layout, size=0.75, anchor="start", fill=MUTED)
+    v.text(mx, my - 1.6, mod.heading, size=1.25, anchor="start", weight="bold")
     for f in mod.features:
         x, y = mx + f.x, my + f.y
         fill = FEATURE_FILL.get(f.kind, "none")
@@ -209,6 +208,8 @@ def draw_module(v: View, lay: Layout) -> None:
             v.text(x, y + (f.h or f.w) / 2 + 0.75, f.label, size=size, fill=colour, weight=weight)
         elif f.label_pos == "above":
             v.text(x, y - (f.h or f.w) / 2 - 0.75, f.label, size=size, fill=colour, weight=weight)
+        elif f.label_pos == "left":
+            v.text(x - f.w / 2 - 0.5, y, f.label, size=size, anchor="end", fill=colour, weight=weight)
         else:  # right
             v.text(x + f.w / 2 + 0.5, y, f.label, size=size, anchor="start", fill=colour, weight=weight)
 
@@ -221,10 +222,10 @@ def draw_pads(v: View, lay: Layout) -> None:
     for p in mod.pads:
         x, y = lay.xy(p.row, p.col)
         if p.nc:  # left disconnected: crossed out, its number moves to the label
-            v.pad(x, y, used=False)
+            v.pad(x, y, used=False, square=p.square)
             strike(v, x, y)
         else:
-            v.pad(x, y, label=p.number, used=True)
+            v.pad(x, y, label=p.number, used=True, square=p.square)
     for row in sorted({p.row for p in mod.pads}):
         pads = sorted((p for p in mod.pads if p.row == row), key=lambda p: p.col)
         x, y = lay.xy(row, cols - 1)
@@ -299,7 +300,7 @@ def draw(mod: Module) -> None:
 
     parts = [
         text(PAGE_W / 2, 3.0, f"ESP32-C3 SuperMini to the {mod.title}", 1.7, "bold", anchor="middle"),
-        text(PAGE_W / 2, 5.6, "Both boards seen from their component side, SuperMini USB-C up. Pin order is as on the GPS board; see its note.", 1.0, anchor="middle"),
+        text(PAGE_W / 2, 5.6, "Both boards seen from their component side, SuperMini USB-C up. Pin order is as on the GPS board; see the notes.", 1.0, anchor="middle"),
         text(PAGE_W / 2, 7.5, f"Supply: {mod.supply}.  Default UART speed: {mod.baud} baud.", 1.0, "bold", anchor="middle"),
         v.svg_group(ox, oy),
     ]
@@ -328,7 +329,7 @@ def draw(mod: Module) -> None:
         parts.append(text(lx + 28.0, y, why, 0.85, fill=MUTED))
     y += 3.2
     parts.append(text(lx, y, "Notes", 1.05, "bold"))
-    for note in mod.notes:
+    for note in (f"The board drawing: {mod.layout}", *mod.notes):
         for i, line in enumerate(textwrap.wrap(note, 112)):
             y += 1.9 if i == 0 else 1.5
             if i == 0:

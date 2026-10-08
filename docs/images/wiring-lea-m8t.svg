@@ -1,12 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1012" height="911" viewBox="0 0 1012 911">
+<svg xmlns="http://www.w3.org/2000/svg" width="1012" height="948" viewBox="0 0 1012 948">
 <rect width="100%" height="100%" fill="#ffffff"/>
 <text x="506.0" y="33.0" font-size="18.7" font-family="Helvetica, Arial, sans-serif" font-weight="bold" fill="#1a1a2e" text-anchor="middle" dy="0.36em">ESP32-C3 SuperMini to the u-blox LEA-M8T (Huawei WD22UGRC card, J2)</text>
-<text x="506.0" y="61.6" font-size="11.0" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="middle" dy="0.36em">Both boards seen from their component side, SuperMini USB-C up. Pin order is as on the GPS board; see its note.</text>
+<text x="506.0" y="61.6" font-size="11.0" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="middle" dy="0.36em">Both boards seen from their component side, SuperMini USB-C up. Pin order is as on the GPS board; see the notes.</text>
 <text x="506.0" y="82.5" font-size="11.0" font-family="Helvetica, Arial, sans-serif" font-weight="bold" fill="#1a1a2e" text-anchor="middle" dy="0.36em">Supply: 3.3 V only.  Default UART speed: 9600 baud.</text>
 <g transform="translate(17.3 132.0)">
 <rect x="360.8" y="69.8" width="572.0" height="297.4" rx="8.8" fill="#4f7a2a" stroke="#1a1a2e" stroke-width="2.75"/>
-<text x="360.8" y="36.8" font-size="13.8" font-family="Helvetica, Arial, sans-serif" font-weight="bold" fill="#1a1a2e" text-anchor="start" dy="0.36em">Huawei WD22UGRC card (LEA-M8T), connector J2</text>
-<text x="360.8" y="55.5" font-size="8.2" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#555c66" text-anchor="start" dy="0.36em">Component side, J2 on the left, from photos and the reverse-engineered component layout. Not to scale.</text>
+<text x="360.8" y="52.2" font-size="13.8" font-family="Helvetica, Arial, sans-serif" font-weight="bold" fill="#1a1a2e" text-anchor="start" dy="0.36em">Huawei WD22UGRC card (LEA-M8T), connector J2</text>
 <circle cx="393.8" cy="97.3" r="16.5" fill="#e8c25a" stroke="#1a1a2e" stroke-width="1.10"/>
 <circle cx="393.8" cy="97.3" r="9.2" fill="#ffffff" stroke="#1a1a2e" stroke-width="0.88"/>
 <circle cx="899.8" cy="97.3" r="16.5" fill="#e8c25a" stroke="#1a1a2e" stroke-width="1.10"/>
@@ -182,12 +181,15 @@
 <text x="363.0" y="747.9" font-size="9.3" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#555c66" text-anchor="start" dy="0.36em">no net in the reverse-engineered schematic</text>
 <text x="55.0" y="783.1" font-size="11.6" font-family="Helvetica, Arial, sans-serif" font-weight="bold" fill="#1a1a2e" text-anchor="start" dy="0.36em">Notes</text>
 <circle cx="61.6" cy="804.0" r="3.3" fill="#1a1a2e"/>
-<text x="77.0" y="804.0" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="start" dy="0.36em">3.3 V ONLY. The card has no regulator: 5 V destroys the module.</text>
-<circle cx="61.6" cy="824.9" r="3.3" fill="#1a1a2e"/>
-<text x="77.0" y="824.9" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="start" dy="0.36em">Find pin 1 with a meter before powering anything. GND (8) buzzes to the corner mounting pads; VANT (1) reads a</text>
-<text x="77.0" y="841.4" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="start" dy="0.36em">few ohms to the SMB centre pin.</text>
+<text x="77.0" y="804.0" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="start" dy="0.36em">The board drawing: Component side, J2 on the left, from photos and the reverse-engineered component layout. Not</text>
+<text x="77.0" y="820.5" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="start" dy="0.36em">to scale.</text>
+<circle cx="61.6" cy="841.4" r="3.3" fill="#1a1a2e"/>
+<text x="77.0" y="841.4" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="start" dy="0.36em">3.3 V ONLY. The card has no regulator: 5 V destroys the module.</text>
 <circle cx="61.6" cy="862.3" r="3.3" fill="#1a1a2e"/>
-<text x="77.0" y="862.3" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="start" dy="0.36em">VANT is the antenna bias input. Link it to V+ for a 3.3 V active antenna; leave it open for a passive one.</text>
-<circle cx="61.6" cy="883.2" r="3.3" fill="#1a1a2e"/>
-<text x="77.0" y="883.2" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="start" dy="0.36em">Default UART speed is 9600 baud. The J2 pinout is reverse-engineered and has not been powered yet.</text>
+<text x="77.0" y="862.3" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="start" dy="0.36em">Find pin 1 with a meter before powering anything. GND (8) buzzes to the corner mounting pads; VANT (1) reads a</text>
+<text x="77.0" y="878.8" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="start" dy="0.36em">few ohms to the SMB centre pin.</text>
+<circle cx="61.6" cy="899.7" r="3.3" fill="#1a1a2e"/>
+<text x="77.0" y="899.7" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="start" dy="0.36em">VANT is the antenna bias input. Link it to V+ for a 3.3 V active antenna; leave it open for a passive one.</text>
+<circle cx="61.6" cy="920.6" r="3.3" fill="#1a1a2e"/>
+<text x="77.0" y="920.6" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#1a1a2e" text-anchor="start" dy="0.36em">Default UART speed is 9600 baud. The J2 pinout is reverse-engineered and has not been powered yet.</text>
 </svg>
