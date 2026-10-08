@@ -18,6 +18,21 @@ class Pad:
     col: int = 0  # 0 = the column nearer the SuperMini, 1 = the far column
     number: str = ""  # pin number, for headers that are numbered
     nc: str = ""  # set when the pad must be left disconnected: the reason why
+    square: bool = False  # a square pad, as boards mark pin 1
+
+
+@dataclass(frozen=True)
+class Feature:
+    """Something else on the board, drawn for reference: where it is
+    relative to the header tells you which way up the board is."""
+
+    kind: str  # chip, connector, led, cell, hole, pad, part, header, text
+    x: float  # centre, mm from the board's top-left corner in the drawing
+    y: float
+    w: float  # size; a circle's diameter is w
+    h: float = 0.0
+    label: str = ""
+    label_pos: str = "inside"  # inside, below, above, left, right
 
 
 @dataclass(frozen=True)
@@ -41,8 +56,8 @@ class Divider:
 class Module:
     key: str  # file name suffix: docs/images/wiring-<key>.svg
     title: str  # in the diagram title and the docs
-    heading: str  # on the board in the drawing
-    sub: tuple[str, ...]  # smaller lines under the heading
+    heading: str  # above the board in the drawing
+    layout: str  # where the drawn layout comes from, shown under the heading
     fill: str  # board colour in the drawing
     supply: str
     baud: int
@@ -50,6 +65,13 @@ class Module:
     wires: tuple[Wire, ...]
     notes: tuple[str, ...]
     pitch: float = 2.54  # drawn pad spacing; the boards are not drawn to scale
+    # Board outline in the drawing: width, the first row of pads from the top
+    # edge, and the margin under the last row. The header is always on the
+    # left, nearest the SuperMini, as on every board's own layout here.
+    width: float = 24.0
+    top: float = 3.5
+    foot: float = 3.0
+    features: tuple[Feature, ...] = field(default=())
     divider: Divider | None = None
     links: tuple[tuple[str, str, str], ...] = field(default=())  # (pad, pad, label)
     # Points off the header that must also be left disconnected: (names, reason).
@@ -86,15 +108,34 @@ class Module:
 UBLOX7 = Module(
     key="ublox7",
     title="u-blox 7 board",
-    heading="u-blox 7",
-    sub=("GPS receiver board", "the \"GT-U7\" entry"),
-    fill="#1f7a4d",
+    heading="GoouuuTech GT-U7 (u-blox 7)",
+    layout="Component side from its dimensioned drawing, turned a quarter turn anticlockwise so the header "
+           "(along its top edge) faces the SuperMini. Not to scale.",
+    fill="#26262e",
     supply="3.3 V",
     baud=9600,
-    pads=(Pad("VCC", 0), Pad("GND", 1), Pad("RXD", 2), Pad("TXD", 3), Pad("PPS", 4)),
+    # Board 27.6 x 26.6 mm; turned, the header is the left edge and the pad
+    # that is rightmost in the board's own drawing is at the top. Features are
+    # the drawing's positions turned the same way, shifted 1.5 mm right to
+    # line up with the drawn pads.
+    width=28.1,
+    top=8.7,
+    foot=8.8,
+    pads=(Pad("PPS", 0), Pad("TXD", 1), Pad("RXD", 2), Pad("GND", 3), Pad("VCC", 4)),
+    features=(
+        Feature("chip", 13.6, 13.6, 12.1, 16.2, label="GT-U7"),
+        Feature("cell", 4.6, 3.5, 4.8, label="backup", label_pos="right"),
+        Feature("part", 14.9, 2.9, 5.0, 3.0, label="IC"),
+        Feature("part", 9.4, 2.7, 2.0, 1.0),
+        Feature("connector", 21.4, 2.9, 2.4, 2.4, label="U.FL antenna", label_pos="below"),
+        Feature("connector", 25.0, 13.7, 6.2, 8.6, label="micro-USB"),
+        Feature("hole", 24.1, 23.2, 4.6),
+        Feature("led", 19.5, 24.8, 1.6, 0.9, label="LED D1", label_pos="left"),
+        Feature("part", 8.7, 24.8, 3.0, 3.0),
+    ),
     wires=(Wire("3V3", "VCC"), Wire("G", "GND"), Wire("4", "RXD"), Wire("3", "TXD"), Wire("1", "PPS")),
     notes=(
-        "Every pin is 3.3 V logic, so the wires go straight across: the hook-up ten64 used.",
+        "Every pin is 3.3 V logic, so no level shifting is needed: the hook-up ten64 used.",
         "RXD is the board's input and TXD its output: GPIO4 (TX) goes to RXD, GPIO3 (RX) to TXD.",
         "Default UART speed is 9600 baud. Takes RTCM 2.3 corrections only.",
     ),
@@ -103,16 +144,24 @@ UBLOX7 = Module(
 MAXM10S = Module(
     key="max-m10s",
     title="u-blox MAX-M10S breakout",
-    heading="MAX-M10S",
-    sub=("u-blox M10 breakout",),
-    fill="#1c6b9c",
+    heading="MAX-M10S breakout",
+    layout="Component side, header on the left, from a product photo. On the back: the U.FL antenna "
+           "connector and the backup cell. Not to scale.",
+    fill="#26262e",
     supply="3.3 V",
     baud=38400,
-    pads=(Pad("V", 0), Pad("G", 1), Pad("T", 2), Pad("R", 3), Pad("P", 4)),
-    wires=(Wire("3V3", "V"), Wire("G", "G"), Wire("3", "T"), Wire("4", "R"), Wire("1", "P")),
+    width=18.5,
+    top=1.6,
+    foot=1.4,
+    # As the silkscreen reads, top to bottom; PPS has the square pad.
+    pads=(Pad("VCC", 0), Pad("GND", 1), Pad("TX", 2), Pad("RX", 3), Pad("PPS", 4, square=True)),
+    features=(
+        Feature("chip", 12.55, 6.1, 10.3, 9.6, label="MAX-M10S"),
+    ),
+    wires=(Wire("3V3", "VCC"), Wire("G", "GND"), Wire("3", "TX"), Wire("4", "RX"), Wire("1", "PPS")),
     notes=(
         "Supply is 3.3 V (2.7 to 3.6 V). Never use the 5V pin.",
-        "T is the module's output and R its input. If the module is silent, check these two first.",
+        "TX is the module's output and RX its input. If the module is silent, check these two first.",
         "Default UART speed is 38400 baud. The module has no flash, so the firmware configures it at every boot.",
     ),
 )
@@ -122,20 +171,38 @@ DEBUG_UART = "1.8 V debug UART: 3.3 V exceeds its rating"
 LC29H = Module(
     key="lc29h",
     title="Quectel LC29H(AA) board",
-    heading="LC29H(AA)",
-    sub=("Quectel dual-band L1+L5", "V is beside the POWER LED"),
+    heading="Quectel LC29H(AA) board",
+    layout="Component side, header on the left, laid out from a photo of the board (2026-09-27). Not to scale.",
     fill="#3a3f4b",
     supply="5 V",
     baud=115200,
     pitch=3.81,
+    width=34.0,
+    top=7.2,
+    foot=2.5,
+    # Top to bottom as the silkscreen reads with the header on the left.
     pads=(
-        Pad("V", 0),
-        Pad("G", 1),
-        Pad("T1", 2),
+        Pad("P", 0),
+        Pad("T2", 1, nc=DEBUG_UART),
+        Pad("R2", 2, nc=DEBUG_UART),
         Pad("R1", 3),
-        Pad("R2", 4, nc=DEBUG_UART),
-        Pad("T2", 5, nc=DEBUG_UART),
-        Pad("P", 6),
+        Pad("T1", 4),
+        Pad("G", 5),
+        Pad("V", 6),
+    ),
+    features=(
+        Feature("hole", 2.6, 2.2, 2.3),
+        Feature("hole", 31.5, 2.6, 2.3),
+        Feature("hole", 32.0, 26.6, 2.3),
+        Feature("pad", 23.3, 1.9, 1.8, label="ENT", label_pos="below"),
+        Feature("pad", 25.4, 1.9, 1.8, label="R3", label_pos="below"),
+        Feature("pad", 27.6, 1.9, 1.8, label="T3", label_pos="below"),
+        Feature("led", 16.4, 3.1, 1.6, 0.9, label="PPS LED", label_pos="below"),
+        Feature("chip", 25.6, 14.1, 12.9, 15.6, label="LC29H"),
+        Feature("connector", 12.1, 21.3, 2.6, 2.6, label="U.FL antenna", label_pos="below"),
+        Feature("part", 13.3, 28.6, 2.6, 1.6, label="LDO", label_pos="right"),
+        Feature("led", 21.5, 27.6, 1.6, 0.9, label="POWER LED", label_pos="below"),
+        Feature("cell", 27.8, 24.6, 5.5, label="backup"),
     ),
     wires=(Wire("5V", "V"), Wire("G", "G"), Wire("3", "T1"), Wire("4", "R1"), Wire("1", "P")),
     divider=Divider(pad="R1", series="1 kΩ", shunt="5.6 kΩ", ground_pad="G"),
@@ -153,23 +220,41 @@ NO_NET = "no net in the reverse-engineered schematic"
 LEAM8T = Module(
     key="lea-m8t",
     title="u-blox LEA-M8T (Huawei WD22UGRC card, J2)",
-    heading="LEA-M8T",
-    sub=("Huawei WD22UGRC", "connector J2 (2 x 5)"),
-    fill="#5b6b2a",
+    heading="Huawei WD22UGRC card (LEA-M8T), connector J2",
+    layout="Component side, J2 on the left, from photos and the reverse-engineered component layout. Not to scale.",
+    fill="#4f7a2a",
     supply="3.3 V only",
     baud=9600,
     pitch=5.08,
+    width=52.0,
+    top=6.5,
+    foot=5.3,
+    # J2 is 2 x 4. The component layout marks pin 1; with J2 on the left it
+    # is the top pin of the column at the board edge, and the odd pins run
+    # down that column.
     pads=(
-        Pad("V+", 0, 0, "2"),
-        Pad("VANT", 0, 1, "1"),
-        Pad("", 1, 0, "4", nc=NO_NET),
-        Pad("TxD", 1, 1, "3"),
-        Pad("1PPS", 2, 0, "6"),
-        Pad("RxD", 2, 1, "5"),
-        Pad("GND", 3, 0, "8"),
-        Pad("", 3, 1, "7", nc=NO_NET),
-        Pad("", 4, 0, "10", nc=NO_NET),
-        Pad("", 4, 1, "9", nc=NO_NET),
+        Pad("VANT", 0, 0, "1"),
+        Pad("V+", 0, 1, "2"),
+        Pad("TxD", 1, 0, "3"),
+        Pad("", 1, 1, "4", nc=NO_NET),
+        Pad("RxD", 2, 0, "5"),
+        Pad("1PPS", 2, 1, "6"),
+        Pad("", 3, 0, "7", nc=NO_NET),
+        Pad("GND", 3, 1, "8"),
+    ),
+    features=(
+        Feature("hole", 3.0, 2.5, 3.0),
+        Feature("hole", 49.0, 2.5, 3.0),
+        Feature("hole", 3.0, 24.6, 3.0),
+        Feature("hole", 49.0, 24.6, 3.0),
+        Feature("header", 5.14, 14.12, 7.6, 19.4, label="J2", label_pos="above"),
+        Feature("chip", 27.9, 9.6, 13.0, 15.0, label="LEA-M8T"),
+        Feature("text", 27.9, 20.2, 0.0, label="WD22UGRC VER.C T"),
+        Feature("connector", 47.5, 13.0, 5.5, 6.8, label="SMB", label_pos="above"),
+        Feature("connector", 53.2, 13.0, 5.7, 2.6),
+        Feature("part", 40.4, 21.6, 7.4, 4.6, label="6V8 TVS"),
+        Feature("pad", 13.0, 24.8, 2.0, 1.4, label="−", label_pos="right"),
+        Feature("pad", 19.0, 24.8, 2.0, 1.4, label="+", label_pos="right"),
     ),
     wires=(Wire("3V3", "V+"), Wire("G", "GND"), Wire("3", "TxD"), Wire("4", "RxD"), Wire("1", "1PPS")),
     links=(("V+", "VANT", "link for an active antenna"),),

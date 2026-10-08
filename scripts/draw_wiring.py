@@ -8,17 +8,20 @@ receiver board, as docs/images/wiring-<module>.svg.
 
 The SuperMini is drawn to scale from the component side, USB-C up.  We have no
 measured outlines for the GPS boards, so each is a schematic block: its pads
-are in the order they have on the board and carry the names printed there,
-but the block is not to scale.  A pad that must be left disconnected is
+are in the order they have on the board, seen from its component side with
+the header on the left, and carry the names printed there.  Where a photo
+of the board exists, its other parts (module, antenna connector, LEDs,
+battery, mounting holes) are drawn where they sit, for reference; the board
+is still not to scale.  A pad that must be left disconnected is
 crossed out in red, and each diagram lists those pads with the reason.
 
 Every wire leaves its SuperMini pin to the right, turns down (or up) a lane
 of its own in the gap, and runs right again into its pad.  A pad in the far
 column of a two-row header is reached along the channel between two rows of
-pads.  Which lane each wire takes, and how high the GPS board sits beside the
+pads, above or below its own.  Which lane each wire takes, and how high the GPS board sits beside the
 SuperMini, are chosen by exhaustive search: every lane order at every board
-height, ranked by wires running on top of each other (never allowed if it
-can be avoided), then by crossings, then by steps too short to draw cleanly,
+height, ranked by wires running on top of each other or over a mounting hole (never
+allowed if it can be avoided), then by crossings, then by steps too short to draw cleanly,
 then by total wire length.  The search
 is deterministic, so the drawings regenerate byte-identically.
 """
@@ -40,9 +43,7 @@ OUT = pathlib.Path(__file__).resolve().parent.parent / "docs" / "images"
 PAGE_W = 92.0  # every diagram the same width
 LANE = 2.2  # mm between parallel wires in the gap (the wires are 1.3 mm wide)
 LANE_X0 = sm.BOARD_W + 3.0  # first lane, in the SuperMini's frame
-MOD_W = 31.0  # width of a GPS board block
-HEAD_H = 8.5  # from the top of a block to its first row of pads
-FOOT_H = 3.0  # below its last row
+CAPTION_H = 2.8  # the board's name, above its outline
 PAD_X = 2.6  # from the block's left edge to its near column of pads
 DIVIDER_W = 13.0  # extra gap for the resistors, where a wire has a divider
 MIN_GAP = 2.0  # parallel wires closer than this, side by side, are a clash
@@ -72,36 +73,36 @@ class Layout:
     """Where one module's block sits and how its wires run, in the SuperMini's
     frame (mm from the SuperMini's top-left corner)."""
 
-    def __init__(self, mod: Module, my: float, order: tuple[int, ...], flip: bool = False):
+    def __init__(self, mod: Module, my: float, order: tuple[int, ...], above: tuple[bool, ...] = ()):
         self.mod, self.my = mod, my
         self.cols = max(p.col for p in mod.pads) + 1
-        self.flip = flip  # a two-row header drawn with its rows the other way round
         n = len(mod.wires)
         self.mx = LANE_X0 + (n - 1) * LANE + 3.0 + (DIVIDER_W if mod.divider else 0.0)
         rows = max(p.row for p in mod.pads) + 1
-        self.h = HEAD_H + (rows - 1) * mod.pitch + FOOT_H
+        self.h = mod.top + (rows - 1) * mod.pitch + mod.foot
         self.routes: dict[str, list[Pt]] = {}
+        inner = iter(above)
         for w, lane in zip(mod.wires, order):
             lx = LANE_X0 + lane * LANE
             xs, ys = sm.pin_xy(w.pin)
             px, py = self.pad_xy(w.pad)
-            if self.col(mod.pad(w.pad)) == 0:
+            if mod.pad(w.pad).col == 0:
                 pts = [(xs, ys), (lx, ys), (lx, py), (px, py)]
-            else:  # along the channel below its row, then up into the pad
-                ye = py + mod.pitch / 2
+            else:  # along the channel above or below its row, then into the pad
+                ye = py + (-mod.pitch / 2 if next(inner, False) else mod.pitch / 2)
                 pts = [(xs, ys), (lx, ys), (lx, ye), (px, ye), (px, py)]
             self.routes[w.pad] = simplify(pts)
 
-    def col(self, pad) -> int:
-        """The column the pad is drawn in: 0 is nearest the SuperMini."""
-        return self.cols - 1 - pad.col if self.flip else pad.col
-
     def pad_xy(self, name: str) -> Pt:
         p = self.mod.pad(name)
-        return self.xy(p.row, self.col(p))
+        return self.xy(p.row, p.col)
 
     def xy(self, row: int, col: int) -> Pt:
-        return self.mx + PAD_X + col * self.mod.pitch, self.my + HEAD_H + row * self.mod.pitch
+        return self.mx + PAD_X + col * self.mod.pitch, self.my + self.mod.top + row * self.mod.pitch
+
+    def right(self) -> float:
+        """The rightmost thing drawn for the board (a connector can overhang its edge)."""
+        return self.mx + max([self.mod.width] + [f.x + f.w / 2 for f in self.mod.features])
 
     def cost(self) -> tuple[int, int, int, float]:
         """(clashes, crossings, kinks, total length)."""
@@ -123,6 +124,15 @@ class Layout:
                     (hx0, hy, hx1, _), (vx, vy0, _, vy1) = ((ax0, ay0, ax1, ay1), (bx0, by0, bx1, by1)) if ah else ((bx0, by0, bx1, by1), (ax0, ay0, ax1, ay1))
                     if min(hx0, hx1) - 1e-6 <= vx <= max(hx0, hx1) + 1e-6 and min(vy0, vy1) - 1e-6 <= hy <= max(vy0, vy1) + 1e-6:
                         cross += 1
+        # A wire across a mounting hole hides the hole: as bad as two wires touching.
+        for s in segs.values():
+            for (x0, y0), (x1, y1) in s:
+                for f in self.mod.features:
+                    if f.kind != "hole" or abs(y0 - y1) > 1e-6:
+                        continue
+                    hx, hy, r = self.mx + f.x, self.my + f.y, f.w / 2
+                    if abs(y0 - hy) < r + 0.7 and min(x0, x1) - r < hx < max(x0, x1) + r:
+                        clash += 1
         # A step too short for two rounded corners draws as a kink.
         kinks = sum(1 for s in segs.values() for (x0, y0), (x1, y1) in s if abs(x0 - x1) < 1e-6 and abs(y0 - y1) < MIN_STEP and (x1, y1) != s[-1][1])
         length = sum(abs(x1 - x0) + abs(y1 - y0) for s in segs.values() for (x0, y0), (x1, y1) in s)
@@ -131,13 +141,13 @@ class Layout:
 
 def best_layout(mod: Module) -> Layout:
     n = len(mod.wires)
+    n_inner = sum(1 for w in mod.wires if mod.pad(w.pad).col)
     best = None
-    two_rows = any(p.col for p in mod.pads)
-    for flip in (False, True) if two_rows else (False,):
+    for above in itertools.product((False, True), repeat=n_inner):
         for k in range(-16, 33):
             for order in itertools.permutations(range(n)):
-                lay = Layout(mod, k * STEP, order, flip)
-                key = (*lay.cost(), abs(k), k, order, flip)
+                lay = Layout(mod, k * STEP, order, above)
+                key = (*lay.cost(), abs(k), k, order, above)
                 if best is None or key < best[0]:
                     best = (key, lay)
     return best[1]
@@ -162,12 +172,46 @@ def draw_supermini(v: View, used: set[str]) -> None:
         v.text(2.6 if left else W - 2.6, y, name, size=0.95, anchor="start" if left else "end", fill="#ffffff" if name in used else "#9aa0a6", weight="bold")
 
 
+FEATURE_FILL = {
+    "chip": "#c9ced6", "connector": "#d9b44a", "led": "#f4f4f4", "cell": "#b9bdc5",
+    "pad": "#e8c25a", "part": "#26262e", "hole": "#e8c25a",
+}
+
+
 def draw_module(v: View, lay: Layout) -> None:
+    """The board outline, its name above it, and its other parts for reference."""
     mod, mx, my = lay.mod, lay.mx, lay.my
-    v.rect(mx, my, mx + MOD_W, my + lay.h, fill=mod.fill, stroke=INK, width=0.25, rx=0.8)
-    v.text(mx + MOD_W / 2, my + 2.3, mod.heading, size=1.4, fill="#ffffff", weight="bold")
-    for i, line in enumerate(mod.sub):
-        v.text(mx + MOD_W / 2, my + 4.3 + i * 1.4, line, size=0.85, fill="#ffffff")
+    v.rect(mx, my, mx + mod.width, my + lay.h, fill=mod.fill, stroke=INK, width=0.25, rx=0.8)
+    v.text(mx, my - 1.6, mod.heading, size=1.25, anchor="start", weight="bold")
+    for f in mod.features:
+        x, y = mx + f.x, my + f.y
+        fill = FEATURE_FILL.get(f.kind, "none")
+        if f.kind in ("hole", "cell"):
+            v.circle(x, y, f.w / 2, fill=fill, stroke=INK, width=0.1)
+            if f.kind == "hole":
+                v.circle(x, y, f.w * 0.28, fill="#ffffff", stroke=INK, width=0.08)
+        elif f.kind == "pad" and not f.h:
+            v.circle(x, y, f.w / 2, fill=fill, stroke=INK, width=0.08)
+        elif f.kind == "header":
+            v.rect(x - f.w / 2, y - f.h / 2, x + f.w / 2, y + f.h / 2, fill="none", stroke="#e6e8ec", width=0.12, dash="4 3", rx=0.4)
+        elif f.kind != "text":
+            v.rect(x - f.w / 2, y - f.h / 2, x + f.w / 2, y + f.h / 2, fill=fill, stroke=INK, width=0.1, rx=0.2)
+        if not f.label:
+            continue
+        light = f.kind in ("chip", "led", "cell", "connector") and f.label_pos == "inside"
+        colour = INK if light else "#e6e8ec"
+        size = 0.95 if f.kind == "chip" else 0.65
+        weight = "bold" if f.kind in ("chip", "header") else "normal"
+        if f.label_pos == "inside":
+            v.text(x, y, f.label, size=size, fill=colour, weight=weight)
+        elif f.label_pos == "below":
+            v.text(x, y + (f.h or f.w) / 2 + 0.75, f.label, size=size, fill=colour, weight=weight)
+        elif f.label_pos == "above":
+            v.text(x, y - (f.h or f.w) / 2 - 0.75, f.label, size=size, fill=colour, weight=weight)
+        elif f.label_pos == "left":
+            v.text(x - f.w / 2 - 0.5, y, f.label, size=size, anchor="end", fill=colour, weight=weight)
+        else:  # right
+            v.text(x + f.w / 2 + 0.5, y, f.label, size=size, anchor="start", fill=colour, weight=weight)
 
 
 def draw_pads(v: View, lay: Layout) -> None:
@@ -176,24 +220,20 @@ def draw_pads(v: View, lay: Layout) -> None:
     wired = {w.pad for w in mod.wires} | {name for a, b, _ in mod.links for name in (a, b)}
     cols = lay.cols
     for p in mod.pads:
-        x, y = lay.xy(p.row, lay.col(p))
+        x, y = lay.xy(p.row, p.col)
         if p.nc:  # left disconnected: crossed out, its number moves to the label
-            v.pad(x, y, used=False)
+            v.pad(x, y, used=False, square=p.square)
             strike(v, x, y)
         else:
-            v.pad(x, y, label=p.number, used=True)
-    link_note = {b: label for _, b, label in mod.links}
+            v.pad(x, y, label=p.number, used=True, square=p.square)
     for row in sorted({p.row for p in mod.pads}):
-        pads = sorted((p for p in mod.pads if p.row == row), key=lay.col)
+        pads = sorted((p for p in mod.pads if p.row == row), key=lambda p: p.col)
         x, y = lay.xy(row, cols - 1)
         names = " · ".join(p.name or f"{p.number} n/c" for p in pads)
         live = any(not p.nc for p in pads)
         v.text(x + 1.7, y, names, size=1.1, anchor="start", fill="#ffffff" if live else "#c9ced6", weight="bold")
-        note = next((link_note[p.name] for p in pads if p.name in link_note), "")
-        if not note and cols == 1 and pads[0].nc:
-            note = "leave disconnected"
-        if note:
-            v.text(x + (10.4 if cols > 1 else 5.6), y, note, size=0.8, anchor="start", fill="#e6e8ec")
+        if cols == 1 and pads[0].nc:
+            v.text(x + 5.6, y, "leave disconnected", size=0.8, anchor="start", fill="#e6e8ec")
 
 
 def strike(v: View, x: float, y: float, r: float = 1.0) -> None:
@@ -211,7 +251,8 @@ def draw_divider(v: View, lay: Layout) -> None:
     _, yg = lay.pad_xy(d.ground_pad)
     xr, xj = lay.mx - 9.5, lay.mx - 5.2
     v.wire([(xj, y), (xj, yg)], sm.WIRES["G"][1], width=0.9, crimps=False)
-    yb = yg + lay.mod.pitch / 2  # midway between the ground wire and the next one
+    # midway between the ground wire and the next one towards this wire
+    yb = yg + (lay.mod.pitch / 2 if y > yg else -lay.mod.pitch / 2)
     v.rect(xj - 0.65, yb - 0.95, xj + 0.65, yb + 0.95, fill="#ffffff", stroke=INK, width=0.14, rx=0.15)
     v.text(xj + 1.2, yb, d.shunt, size=0.85, anchor="start", weight="bold", halo=True)
     v.rect(xr - 1.6, y - 0.65, xr + 1.6, y + 0.65, fill="#ffffff", stroke=INK, width=0.14, rx=0.15)
@@ -249,8 +290,8 @@ def draw(mod: Module) -> None:
         draw_divider(v, lay)
     draw_pads(v, lay)
 
-    ox = (PAGE_W - (lay.mx + MOD_W)) / 2
-    oy = 12.0 + max(0.0, -lay.my)
+    ox = (PAGE_W - lay.right()) / 2
+    oy = max(12.0, 12.0 + CAPTION_H - lay.my)  # room above for the SuperMini's USB-C and the board's caption
     bottom = oy + max(sm.BOARD_H, lay.my + lay.h)
 
     def text(x, y, s, size, weight="normal", fill=INK, anchor="start"):
@@ -259,7 +300,7 @@ def draw(mod: Module) -> None:
 
     parts = [
         text(PAGE_W / 2, 3.0, f"ESP32-C3 SuperMini to the {mod.title}", 1.7, "bold", anchor="middle"),
-        text(PAGE_W / 2, 5.6, "SuperMini seen from the component side, USB-C up. The GPS board is a schematic: pads in board order, not to scale.", 1.0, anchor="middle"),
+        text(PAGE_W / 2, 5.6, "Both boards seen from their component side, SuperMini USB-C up. Pin order is as on the GPS board; see the notes.", 1.0, anchor="middle"),
         text(PAGE_W / 2, 7.5, f"Supply: {mod.supply}.  Default UART speed: {mod.baud} baud.", 1.0, "bold", anchor="middle"),
         v.svg_group(ox, oy),
     ]
@@ -288,7 +329,7 @@ def draw(mod: Module) -> None:
         parts.append(text(lx + 28.0, y, why, 0.85, fill=MUTED))
     y += 3.2
     parts.append(text(lx, y, "Notes", 1.05, "bold"))
-    for note in mod.notes:
+    for note in (f"The board drawing: {mod.layout}", *mod.notes):
         for i, line in enumerate(textwrap.wrap(note, 112)):
             y += 1.9 if i == 0 else 1.5
             if i == 0:

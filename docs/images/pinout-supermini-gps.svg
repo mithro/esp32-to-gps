@@ -81,7 +81,7 @@
 <line x1="0.0" y1="214.7" x2="-24.2" y2="214.7" stroke="#b3261e" stroke-width="1.32" stroke-linecap="round"/>
 <text x="-33.0" y="214.7" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="normal" fill="#b3261e" text-anchor="end" dy="0.36em">GPIO21: UART0 TX (ROM boot log), keep free</text>
 <line x1="198.0" y1="19.1" x2="222.2" y2="19.1" stroke="#1a1a2e" stroke-width="1.32" stroke-linecap="round"/>
-<rect x="231.0" y="13.1" width="39.6" height="12.1" rx="5.0" fill="#f2d21e" stroke="#1a1a2e" stroke-width="1.10"/>
+<rect x="231.0" y="13.1" width="39.6" height="12.1" rx="5.0" fill="#f28c1e" stroke="#1a1a2e" stroke-width="1.10"/>
 <text x="281.6" y="19.1" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="bold" fill="#1a1a2e" text-anchor="start" dy="0.36em">5 V supply (LC29H board only)</text>
 <line x1="198.0" y1="47.1" x2="222.2" y2="47.1" stroke="#1a1a2e" stroke-width="1.32" stroke-linecap="round"/>
 <rect x="231.0" y="41.0" width="39.6" height="12.1" rx="5.0" fill="#26262e" stroke="#1a1a2e" stroke-width="1.10"/>
@@ -90,7 +90,7 @@
 <rect x="231.0" y="69.0" width="39.6" height="12.1" rx="5.0" fill="#d81e1e" stroke="#1a1a2e" stroke-width="1.10"/>
 <text x="281.6" y="75.0" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="bold" fill="#1a1a2e" text-anchor="start" dy="0.36em">3.3 V supply (u-blox boards)</text>
 <line x1="198.0" y1="103.0" x2="222.2" y2="103.0" stroke="#1a1a2e" stroke-width="1.32" stroke-linecap="round"/>
-<rect x="231.0" y="96.9" width="39.6" height="12.1" rx="5.0" fill="#f28c1e" stroke="#1a1a2e" stroke-width="1.10"/>
+<rect x="231.0" y="96.9" width="39.6" height="12.1" rx="5.0" fill="#f2d21e" stroke="#1a1a2e" stroke-width="1.10"/>
 <text x="281.6" y="103.0" font-size="9.9" font-family="Helvetica, Arial, sans-serif" font-weight="bold" fill="#1a1a2e" text-anchor="start" dy="0.36em">GPIO4: ESP32 TX to GPS RX (commands, RTCM corrections)</text>
 <line x1="198.0" y1="130.9" x2="222.2" y2="130.9" stroke="#1a1a2e" stroke-width="1.32" stroke-linecap="round"/>
 <rect x="231.0" y="124.8" width="39.6" height="12.1" rx="5.0" fill="#2464c8" stroke="#1a1a2e" stroke-width="1.10"/>
