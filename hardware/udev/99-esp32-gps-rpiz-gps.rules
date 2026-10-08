@@ -1,0 +1,26 @@
+# Stable names for the ESP32-C3 GPS nodes (esp32-to-gps) on rpiz-gps
+# (rpiz-gps.iot.welland.mithis.com, the Pi Zero W test host), in the style
+# of the esp32-to-433mhz nodes' 99-esp32-radios.rules on rpi5-433mhz.
+#
+# All ESP32-C3 USB-Serial-JTAG interfaces share one USB identity (VID:PID
+# 303a:1001, product "USB JTAG/serial debug unit"); the only thing that tells
+# them apart is ATTRS{serial}, which is the chip's base MAC. ttyACM numbering
+# is not stable, so key on the MAC.
+#
+# Deploy: sudo cp 99-esp32-gps-rpiz-gps.rules /etc/udev/rules.d/99-esp32-gps.rules && \
+#         sudo udevadm control --reload && sudo udevadm trigger --subsystem-match=tty
+
+# Generic rule: every ESP32-C3 gets a unique stable link by MAC, so nodes
+# stay separate even before the receiver wired to it is identified.
+SUBSYSTEM=="tty", ATTRS{idVendor}=="303a", ATTRS{idProduct}=="1001", SYMLINK+="gps-esp32-$env{ID_SERIAL_SHORT}", GROUP="dialout", MODE="0660"
+
+# Friendly per-receiver aliases (SYMLINK+= accumulates, so a node gets both
+# the generic MAC link above and its receiver's name here). Receiver identity
+# confirmed on hardware 2026-10-08: each node's firmware identified it on its
+# own at first boot ("GPS: identified ..." and GpsStatus Receiver.Model).
+# u-blox M10 (MAX-M10S breakout), SPG 5.10, 38400 baud
+SUBSYSTEM=="tty", ATTRS{idVendor}=="303a", ATTRS{idProduct}=="1001", ATTRS{serial}=="44:1B:F6:2E:A9:A4", SYMLINK+="gps-max-m10s", GROUP="dialout", MODE="0660"
+# u-blox 7 (GoouuuTech GT-U7), firmware 1.00 (59842), 9600 baud
+SUBSYSTEM=="tty", ATTRS{idVendor}=="303a", ATTRS{idProduct}=="1001", ATTRS{serial}=="44:1B:F6:2F:18:78", SYMLINK+="gps-gt-u7", GROUP="dialout", MODE="0660"
+# Quectel LC29H(AA) (Airoha AG3335M), LC29HAANR11A05S, 115200 baud
+SUBSYSTEM=="tty", ATTRS{idVendor}=="303a", ATTRS{idProduct}=="1001", ATTRS{serial}=="E8:3D:C1:8C:5C:BC", SYMLINK+="gps-lc29h", GROUP="dialout", MODE="0660"
