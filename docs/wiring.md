@@ -71,8 +71,11 @@ on ten64 until 2026-09-06.
 All five pads are wired. None is left disconnected.
 
 * Every pin is 3.3 V logic, so no level shifting.
-* Seen from above the header pins, the order is PPS, TXD, RXD, GND, VCC:
-  green, blue, yellow, black, red.
+* This is the GoouuuTech GT-U7. Its header runs along the top edge of the
+  board; the diagram turns the board a quarter turn anticlockwise so the
+  header faces the SuperMini. Seen from above the pins in the diagram's
+  orientation, the order is PPS, TXD, RXD, GND, VCC: green, blue, yellow,
+  black, red.
 * It accepts RTCM 2.3 corrections only.
 
 ## u-blox MAX-M10S breakout
@@ -81,17 +84,20 @@ All five pads are wired. None is left disconnected.
 
 | Board pad | What the pad is | Wire | Connect to |
 |---|---|---|---|
-| V | supply input, 3.3 V | red | 3V3 |
-| G | ground | black | G |
-| T | serial output (the module's TX): NMEA and UBX | blue | GPIO3 |
-| R | serial input (the module's RX): commands and RTCM corrections | yellow | GPIO4 |
-| P | one pulse per second | green | GPIO1 |
+| VCC | supply input, 3.3 V | red | 3V3 |
+| GND | ground | black | G |
+| TX | serial output (the module's TX): NMEA and UBX | blue | GPIO3 |
+| RX | serial input (the module's RX): commands and RTCM corrections | yellow | GPIO4 |
+| PPS | one pulse per second; the square pad | green | GPIO1 |
 
 All five pads are wired. None is left disconnected.
 
 * Supply is 3.3 V (2.7 to 3.6 V). Never use the 5V pin.
-* T is the module's output and R its input. If the module is silent, check
+* TX is the module's output and RX its input. If the module is silent, check
   these two wires first.
+* With the header on the left, the silkscreen reads VCC, GND, TX, RX, PPS
+  from the top; PPS has the square pad. The U.FL antenna connector and the
+  backup cell are on the back.
 * The module has no flash. The firmware has to send its configuration at
   every boot.
 
@@ -162,9 +168,11 @@ All five pads are wired. None is left disconnected.
 | Fact | Source | Checked on an ESP32? |
 |---|---|---|
 | SuperMini dimensions and pin order | `scripts/generate_supermini.py` in [esp32-to-433mhz](https://github.com/mithro/esp32-to-433mhz) | no ESP32 has been wired yet |
-| u-blox 7 header order | the order seen from above the pins, as given by its owner on 2026-10-08 | no |
+| u-blox 7 (GT-U7) header order | the order seen from above the pins, as given by its owner on 2026-10-08; agrees with the order recorded on ten64 on 2026-08-25 | no |
+| u-blox 7 (GT-U7) board layout | the GT-U7's dimensioned drawing (27.6 x 26.6 mm, 2.54 mm header) and product photos, 2026-10-08 | no |
 | u-blox 7 3.3 V supply and logic | ten64 bench session, 2026-08-25, where it ran from the Ten64's 3.3 V rail | no |
-| MAX-M10S pads, 3.3 V supply, 38400 baud | ten64 wiring page `maxm10s-wiring.html`; the module ran on ten64 from 2026-09-06. **Pad order and board layout not yet checked against a photo.** | no |
+| MAX-M10S pad names, order and layout | product photos of both sides, 2026-10-08 | no |
+| MAX-M10S 3.3 V supply, 38400 baud | ten64 wiring page `maxm10s-wiring.html`; the module ran on ten64 from 2026-09-06 | no |
 | LC29H pad order and layout | a photo of the board, 2026-09-27 (ten64 LC29H bring-up session) | no |
 | LC29H 5 V supply, 2.8 V UART1, 1.8 V UART2 | ten64 wiring page `lc29h-wiring.html`; the module answered at 115200 baud on a Pi Zero W | no |
 | LEA-M8T J2 pinout (2 x 4) and pin 1 | the reverse-engineered WD22UGRC schematic and component layout (`wd22ugrc-lea-m8t-schematic.pdf`, 2025-05-19) | no, and the card has never been powered |
