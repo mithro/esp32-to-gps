@@ -79,10 +79,20 @@ def test_rmc(lib, state):
     assert state.lat_e7 == -349285125 and state.position_valid
 
 
-def test_rmc_void_does_not_set_position(lib, state):
+def test_rmc_void_does_not_set_position_or_date(lib, state):
     parse(lib, state, "GNRMC,071349.00,V,3455.71075,S,13836.04200,E,,,041026,,,N,V")
     assert not state.position_valid
-    assert state.date_valid
+    assert not state.date_valid
+
+
+def test_rmc_void_placeholder_date_is_not_taken(lib, state):
+    """The LC29H(AA) on rpiz-gps, 2026-10-08, before its first fix: a void RMC
+    dated 060180, its placeholder 2080-01-06. Taken as valid it set the node's
+    clock to 2080 (which then booted without a DNS server) and went to Home
+    Assistant as the GPS time."""
+    parse(lib, state, "GNRMC,072151.000,V,,,,,,,060180,,,N,V")
+    assert not state.date_valid
+    assert state.time_valid   # the time of day is still the receiver's
 
 
 def test_vtg(lib, state):
