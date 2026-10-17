@@ -7,6 +7,9 @@ Results of [the bench runbook](bench-runbook.md), newest first.
 | 2026-10-08 (evening) | u-blox M10 (MAX-M10S), `esp32-gps-max-m10s`, 10.1.90.75 | `e43b15c`, no IPv6 | 0, 1, 2, 3, 8 | on ansells-iot, MQTT to ha.welland, 81 HA entities; corrections Connected on ADDE_RTCM3, 369125 bytes, 1054 frames, 0 bad CRC. No fix yet (0 satellites in view: antenna placement to check) |
 | 2026-10-08 (evening) | u-blox 7 (GT-U7), `esp32-gps-gt-u7`, 10.1.90.76 | `e43b15c`, no IPv6 | 0, 1, 2, 3, 8 | as above; ADDE_RTCM23 streaming (21925 bytes; RTCM 2.3 is not framed, so 0 frames is expected). 32 satellites in view, no fix yet |
 | 2026-10-08 (evening) | Quectel LC29H(AA), `esp32-gps-lc29h`, 10.1.90.77 | `e43b15c`, no IPv6 | 0, 2, 3, 8; **1 now fails** | as above; ADDE_RTCM3 streaming, 911 frames, message types 1077 1087 1097 1117 1127 1033 4094 1006 1230 1013 1042 1045 1046 1019 1020 1044. **Open:** after the first boot the LC29H no longer answers `$PQTMVERNO` (model and firmware null, `GpsReinit` gives "receiver not identified", with corrections on or off); running on `GpsModule lc29h` |
+| 2026-10-08 | u-blox M10 (MAX-M10S breakout), ESP32 44:1B:F6:2E:A9:A4 | `8c8defb` | 0, 1, 3 | first flash; `GPS: identified u-blox M10 (m10) at 38400 baud`. SPG 5.10, hardware 000A0000, protocol 34.10. NMEA 720 -> 2064, UBX 3, 0 bad, between reads at uptime 00:01:03 and 00:02:55. No fix yet; no WiFi set, so corrections not tried |
+| 2026-10-08 | u-blox 7 (GT-U7), ESP32 44:1B:F6:2F:18:78 | `8c8defb` | 0, 1, 3 | first flash; `GPS: identified u-blox 7 (ublox7) at 9600 baud`, then moved to 38400. Firmware 1.00 (59842), hardware 00070000, protocol 14.00. NMEA 185 -> 399, UBX 604 -> 1267, 0 bad. 16 GPS satellites in view, no fix yet; antenna OK. No WiFi set |
+| 2026-10-08 | Quectel LC29H(AA), ESP32 E8:3D:C1:8C:5C:BC | `8c8defb` | 0, 1, 3 | first flash; `GPS: identified LC29H(AA) (lc29h) at 115200 baud`. Firmware LC29HAANR11A05S, hardware AG3335M. NMEA 1427 -> 3075, 0 bad. No fix yet; its clock read 2080-01-06 before a fix. No WiFi set |
 
 Bring-up on the network, 2026-10-08 evening (WiFi set over the USB console,
 then `gdoc2netcfg tasmota configure`), found three firmware faults, each fixed
@@ -38,9 +41,6 @@ had a fix: the M10 had 57 satellites and the GT-U7 46 in view, the LC29H none,
 and no satellite on any of them had a signal strength (`CNo` null), so none was
 being tracked. The in-view counts come from almanac predictions, so the antennas
 most likely do not see the sky. Next: move them to a window or outside.
-| 2026-10-08 | u-blox M10 (MAX-M10S breakout), ESP32 44:1B:F6:2E:A9:A4 | `8c8defb` | 0, 1, 3 | first flash; `GPS: identified u-blox M10 (m10) at 38400 baud`. SPG 5.10, hardware 000A0000, protocol 34.10. NMEA 720 -> 2064, UBX 3, 0 bad, between reads at uptime 00:01:03 and 00:02:55. No fix yet; no WiFi set, so corrections not tried |
-| 2026-10-08 | u-blox 7 (GT-U7), ESP32 44:1B:F6:2F:18:78 | `8c8defb` | 0, 1, 3 | first flash; `GPS: identified u-blox 7 (ublox7) at 9600 baud`, then moved to 38400. Firmware 1.00 (59842), hardware 00070000, protocol 14.00. NMEA 185 -> 399, UBX 604 -> 1267, 0 bad. 16 GPS satellites in view, no fix yet; antenna OK. No WiFi set |
-| 2026-10-08 | Quectel LC29H(AA), ESP32 E8:3D:C1:8C:5C:BC | `8c8defb` | 0, 1, 3 | first flash; `GPS: identified LC29H(AA) (lc29h) at 115200 baud`. Firmware LC29HAANR11A05S, hardware AG3335M. NMEA 1427 -> 3075, 0 bad. No fix yet; its clock read 2080-01-06 before a fix. No WiFi set |
 
 All three on rpiz-gps, flashed over USB with the factory image built by
 `firmware/build.py` at the pinned commit (build-info `built`
