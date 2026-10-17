@@ -30,6 +30,14 @@ and measured on these nodes:
 The nodes were then upgraded over the air (Tasmota `Upgrade`, served from
 another host on the iot VLAN), which keeps their settings. Still to do: a fix
 (steps 4-7), whether the receivers use the corrections (step 9), and PPS.
+
+On 2026-10-17, after 8 days 20 hours up, all three were still on WiFi and MQTT
+with corrections streaming (ADDE_RTCM3 1.87 GB and 5.6 million frames to each of
+the M10 and LC29H, 0 and 1 bad CRC; ADDE_RTCM23 78 MB to the GT-U7), but none
+had a fix: the M10 had 57 satellites and the GT-U7 46 in view, the LC29H none,
+and no satellite on any of them had a signal strength (`CNo` null), so none was
+being tracked. The in-view counts come from almanac predictions, so the antennas
+most likely do not see the sky. Next: move them to a window or outside.
 | 2026-10-08 | u-blox M10 (MAX-M10S breakout), ESP32 44:1B:F6:2E:A9:A4 | `8c8defb` | 0, 1, 3 | first flash; `GPS: identified u-blox M10 (m10) at 38400 baud`. SPG 5.10, hardware 000A0000, protocol 34.10. NMEA 720 -> 2064, UBX 3, 0 bad, between reads at uptime 00:01:03 and 00:02:55. No fix yet; no WiFi set, so corrections not tried |
 | 2026-10-08 | u-blox 7 (GT-U7), ESP32 44:1B:F6:2F:18:78 | `8c8defb` | 0, 1, 3 | first flash; `GPS: identified u-blox 7 (ublox7) at 9600 baud`, then moved to 38400. Firmware 1.00 (59842), hardware 00070000, protocol 14.00. NMEA 185 -> 399, UBX 604 -> 1267, 0 bad. 16 GPS satellites in view, no fix yet; antenna OK. No WiFi set |
 | 2026-10-08 | Quectel LC29H(AA), ESP32 E8:3D:C1:8C:5C:BC | `8c8defb` | 0, 1, 3 | first flash; `GPS: identified LC29H(AA) (lc29h) at 115200 baud`. Firmware LC29HAANR11A05S, hardware AG3335M. NMEA 1427 -> 3075, 0 bad. No fix yet; its clock read 2080-01-06 before a fix. No WiFi set |
