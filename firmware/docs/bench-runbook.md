@@ -16,7 +16,9 @@ firmware's `build-info-tasmota32c3-gps.json`, and the outcome of every step.
 3. **LEA-M8T:** find J2 pin 1 with a meter (GND, pin 8, buzzes to the corner
    mounting pads; VANT, pin 1, reads a few ohms to the SMB centre pin), and
    check V+ is fed from 3V3, never 5V.
-4. Put the antenna where it sees the sky.
+4. Put the antenna where it sees the sky. On the rpiz-gps bench one antenna
+   feeds all three nodes through a splitter and the GT-U7 powers it; see
+   [Current bench](HWTEST-RESULTS.md#current-bench-since-2026-11-22).
 
 ## Flash and set up the ESP32
 

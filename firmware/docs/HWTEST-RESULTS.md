@@ -2,8 +2,26 @@
 
 Results of [the bench runbook](bench-runbook.md), newest first.
 
+## Current bench (since 2026-11-22)
+
+All three test nodes (`esp32-gps-max-m10s`, `esp32-gps-gt-u7` and
+`esp32-gps-lc29h`) are on rpiz-gps and share **one antenna through an RF signal
+splitter**. Only the **GT-U7 supplies the DC bias** that powers the active
+antenna, so the antenna, and with it all three receivers, depends on the GT-U7
+node being powered.
+
+The antenna is **an L5-only antenna** for now. The u-blox 7 (GT-U7) and the
+u-blox M10 (MAX-M10S) are L1-only receivers, so they are working off-band, and
+the LC29H(AA)'s L1 half is too. Treat satellite counts, C/N0 and accuracy from
+this setup as a lower bound, and do not compare the receivers with each other
+until the antenna is replaced with a better (L1/L5) one, planned for early
+December 2026.
+
 | Date | Receiver | Firmware (fork SHA) | Steps passed | Notes |
 |---|---|---|---|---|
+| 2026-11-22 | u-blox M10 (MAX-M10S), `esp32-gps-max-m10s`, 10.1.90.75 | `e43b15c`, no IPv6 | 5 (fix only) | shared L5 antenna via the splitter (see above). 3D fix, 16 satellites used, about 17.5 h after power-up; `hAcc` / `vAcc` read 0.000 and speed 2.5 m/s while static, so its accuracy fields are not trusted yet |
+| 2026-11-22 | u-blox 7 (GT-U7), `esp32-gps-gt-u7`, 10.1.90.76 | `e43b15c`, no IPv6 | 5 (fix only) | shared L5 antenna, powering it. 3D fix, 8 satellites, hAcc 6.0 m |
+| 2026-11-22 | Quectel LC29H(AA), `esp32-gps-lc29h`, 10.1.90.77 | `e43b15c`, no IPv6 | 5 (fix only) | shared L5 antenna. 3D fix, 22 satellites, hAcc 9.7 m. The three positions agree to within about 15 m |
 | 2026-10-08 (evening) | u-blox M10 (MAX-M10S), `esp32-gps-max-m10s`, 10.1.90.75 | `e43b15c`, no IPv6 | 0, 1, 2, 3, 8 | on ansells-iot, MQTT to ha.welland, 81 HA entities; corrections Connected on ADDE_RTCM3, 369125 bytes, 1054 frames, 0 bad CRC. No fix yet (0 satellites in view: antenna placement to check) |
 | 2026-10-08 (evening) | u-blox 7 (GT-U7), `esp32-gps-gt-u7`, 10.1.90.76 | `e43b15c`, no IPv6 | 0, 1, 2, 3, 8 | as above; ADDE_RTCM23 streaming (21925 bytes; RTCM 2.3 is not framed, so 0 frames is expected). 32 satellites in view, no fix yet |
 | 2026-10-08 (evening) | Quectel LC29H(AA), `esp32-gps-lc29h`, 10.1.90.77 | `e43b15c`, no IPv6 | 0, 2, 3, 8; **1 now fails** | as above; ADDE_RTCM3 streaming, 911 frames, message types 1077 1087 1097 1117 1127 1033 4094 1006 1230 1013 1042 1045 1046 1019 1020 1044. **Open:** after the first boot the LC29H no longer answers `$PQTMVERNO` (model and firmware null, `GpsReinit` gives "receiver not identified", with corrections on or off); running on `GpsModule lc29h` |
