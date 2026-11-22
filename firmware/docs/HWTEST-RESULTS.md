@@ -30,6 +30,23 @@ and measured on these nodes:
   there, so the build drops IPv6 (`-UUSE_IPV6`): 12 of 12 restarts kept DNS,
   against 1 of 6, 3 of 10 and 2 of 4 before.
 
+A fourth fault turned up later, on 2026-11-22:
+
+* **The nodes vanished from USB after any real power-up**
+  ([#10](https://github.com/mithro/esp32-to-gps/issues/10)): Tasmota waits only
+  250 ms at boot for a USB host, then tears the USB-Serial-JTAG console down
+  and leaves D+/D- driven low, so the node never enumerates until its next
+  reset. rpiz-gps's USB comes up about 6 s after a shared power-up and a hot
+  plug takes longer than 250 ms, so it always lost; it only worked on
+  2026-10-08 because esptool's reset keeps the USB link alive. Fork `b7681ad`
+  keeps the USB console whatever happens at boot. Measured on 2026-11-22
+  after an OTA `Upgrade` of all three: each enumerated on rpiz-gps
+  (`/dev/gps-gt-u7`, `/dev/gps-max-m10s`, `/dev/gps-lc29h`). The GT-U7 was
+  then restarted with its hub port disabled, left 2 min 53 s with no host,
+  and enumerated within a second of the port coming back. `Status 1` over each
+  USB console answers; HTTP commands still take 0.13-0.32 s with nothing
+  reading the port; the LC29H kept its 3D fix, corrections and PPS.
+
 The nodes were then upgraded over the air (Tasmota `Upgrade`, served from
 another host on the iot VLAN), which keeps their settings. Still to do: a fix
 (steps 4-7), whether the receivers use the corrections (step 9), and PPS.
